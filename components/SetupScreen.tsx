@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import type { Team, Round, Prize, Question, GameSettings } from '../types';
 import { QuestionType, TieBreakerRule } from '../types';
@@ -178,15 +179,16 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
     setRounds(newRounds);
   };
 
-  const handleQuestionTrimmerChange = (roundIndex: number, questionIndex: number, start?: number, end?: number) => {
+  const handleQuestionTrimmerChange = (roundIndex: number, questionIndex: number, times: { start?: number, end?: number, answerStart?: number }) => {
     const newRounds = [...rounds];
     const round = newRounds[roundIndex];
     const newQuestions = [...(round.questions || [])];
     
     newQuestions[questionIndex] = { 
         ...newQuestions[questionIndex], 
-        audioStartTime: start, 
-        audioEndTime: end 
+        audioStartTime: times.start, 
+        audioEndTime: times.end,
+        answerStartTime: times.answerStart,
     };
     round.questions = newQuestions;
     setRounds(newRounds);
@@ -646,7 +648,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
                                 onClick={() => {
                                     handleQuestionChange(roundIndex, questionIndex, 'audioUrl', undefined);
                                     handleQuestionChange(roundIndex, questionIndex, 'audioFileName', undefined);
-                                    handleQuestionTrimmerChange(roundIndex, questionIndex, undefined, undefined);
+                                    handleQuestionTrimmerChange(roundIndex, questionIndex, { start: undefined, end: undefined, answerStart: undefined });
                                 }} 
                                 className="text-brand-burgundy hover:text-red-400 ml-2"
                                 aria-label="Supprimer le fichier audio"
@@ -660,7 +662,8 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
                         src={question.audioUrl}
                         startTime={question.audioStartTime}
                         endTime={question.audioEndTime}
-                        onTimesChange={(start, end) => handleQuestionTrimmerChange(roundIndex, questionIndex, start, end)}
+                        answerStartTime={question.answerStartTime}
+                        onTimesChange={(times) => handleQuestionTrimmerChange(roundIndex, questionIndex, times)}
                       />
                     )}
                 </div>

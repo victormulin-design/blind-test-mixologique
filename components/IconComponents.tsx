@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export const LogoIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -90,6 +91,14 @@ export const EndMarkerIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) =>
     <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" d="M14.5 4.5v15" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M19 4.5h-.75a.75.75 0 00-.75.75v13.5c0 .414.336.75.75.75H19" />
+    </svg>
+);
+
+export const AnswerMarkerIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.5 4.5v15" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 4.5h.75a.75.75 0 01.75.75v13.5a.75.75 0 01-.75.75H5" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12.75V6.75a1.5 1.5 0 011.5-1.5h.75a1.5 1.5 0 011.5 1.5v8.25a3 3 0 11-3-3v-3.75" />
     </svg>
 );
 

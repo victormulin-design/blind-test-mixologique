@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { Team, Round, Question, Prize, GameSettings } from '../types';
 import { TieBreakerRule } from '../types';
@@ -75,7 +76,7 @@ const CustomAudioPlayer: React.FC<{ src: string, startTime?: number, endTime?: n
                 if (audio && endTime !== undefined && audio.currentTime >= endTime) {
                     audio.pause();
                 }
-            }, 100);
+            }, 50); // Increased frequency for better accuracy
         };
 
         const handlePlay = () => {
@@ -98,9 +99,12 @@ const CustomAudioPlayer: React.FC<{ src: string, startTime?: number, endTime?: n
         audio.addEventListener('pause', handlePause);
         audio.addEventListener('ended', handleEnded);
 
-        if (startTime !== undefined) {
-            audio.currentTime = startTime;
+        // Reset time if src changes
+        if (audio.src !== src) {
+          audio.src = src;
         }
+        audio.currentTime = startTime || 0;
+
 
         return () => {
             audio.removeEventListener('play', handlePlay);
@@ -276,7 +280,7 @@ const AnswerDisplay: React.FC<{ question: Question; onNext: () => void; isLastQu
             
             <div className="flex-shrink-0 h-[120px] [&[data-screen-profile=small]]:h-[80px] flex items-center justify-center">
                 {question.type === 'AUDIO' && question.audioUrl && 
-                    <CustomAudioPlayer src={question.audioUrl} startTime={question.audioStartTime} endTime={question.audioEndTime} />
+                    <CustomAudioPlayer src={question.audioUrl} startTime={question.answerStartTime} />
                 }
             </div>
 

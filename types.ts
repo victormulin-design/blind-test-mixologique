@@ -39,6 +39,7 @@ export interface Question {
   points?: number;
   audioStartTime?: number; // in seconds
   audioEndTime?: number; // in seconds
+  answerStartTime?: number; // in seconds
 }
 
 export interface Round {
