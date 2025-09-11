@@ -7,6 +7,7 @@ export enum TieBreakerRule {
 
 export interface GameSettings {
   tieBreakerRule: TieBreakerRule;
+  rules?: string;
 }
 
 export interface Team {
@@ -40,6 +41,7 @@ export interface Question {
   audioStartTime?: number; // in seconds
   audioEndTime?: number; // in seconds
   answerStartTime?: number; // in seconds
+  splitAnswer?: boolean;
 }
 
 export interface Round {

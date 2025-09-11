@@ -10,7 +10,7 @@ const App: React.FC = () => {
   const [gameState, setGameState] = useState<'WELCOME' | 'SETUP' | 'GAME'>('WELCOME');
   const [teams, setTeams] = useState<Team[]>([]);
   const [rounds, setRounds] = useState<Round[]>([]);
-  const [settings, setSettings] = useState<GameSettings>({ tieBreakerRule: TieBreakerRule.ALL_TIES });
+  const [settings, setSettings] = useState<GameSettings>({ tieBreakerRule: TieBreakerRule.ALL_TIES, rules: '' });
   
   useEffect(() => {
     const height = window.innerHeight;
@@ -33,7 +33,7 @@ const App: React.FC = () => {
     setGameState('WELCOME');
     setTeams([]);
     setRounds([]);
-    setSettings({ tieBreakerRule: TieBreakerRule.ALL_TIES });
+    setSettings({ tieBreakerRule: TieBreakerRule.ALL_TIES, rules: '' });
   }
 
   const processAndStartGame = (config: any) => {
@@ -60,7 +60,8 @@ const App: React.FC = () => {
     }));
     
     const finalSettings: GameSettings = {
-        tieBreakerRule: config.tieBreakerRule || TieBreakerRule.ALL_TIES
+        tieBreakerRule: config.tieBreakerRule || TieBreakerRule.ALL_TIES,
+        rules: config.rules || ''
     };
 
     setTeams(finalTeams);

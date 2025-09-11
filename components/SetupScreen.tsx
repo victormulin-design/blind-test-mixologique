@@ -53,6 +53,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
   const [teams, setTeams] = useState<Partial<Team>[]>(Array(2).fill({ name: '' }));
   const [rounds, setRounds] = useState<Partial<Round>[]>([]);
   const [tieBreakerRule, setTieBreakerRule] = useState<TieBreakerRule>(TieBreakerRule.ALL_TIES);
+  const [rules, setRules] = useState('');
   const [error, setError] = useState('');
   const [notification, setNotification] = useState('');
   const importFileRef = useRef<HTMLInputElement>(null);
@@ -175,6 +176,11 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
     }
 
     newQuestions[questionIndex] = { ...newQuestions[questionIndex], [field]: processedValue };
+    
+    if (field === 'splitAnswer' && value === true) {
+        newQuestions[questionIndex].points = 2;
+    }
+
     round.questions = newQuestions;
     setRounds(newRounds);
   };
@@ -234,7 +240,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
     const localConfigsRaw = localStorage.getItem('blindTestConfigs');
     const localConfigs = localConfigsRaw ? JSON.parse(localConfigsRaw) : {};
     
-    const configData = { teams, rounds, numTeams, tieBreakerRule };
+    const configData = { teams, rounds, numTeams, tieBreakerRule, rules };
     const newSavedConfigs = { ...localConfigs, [newConfigName]: configData };
     localStorage.setItem('blindTestConfigs', JSON.stringify(newSavedConfigs));
     
@@ -284,7 +290,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
 
 
   const handleExportConfig = () => {
-    const config = { teams, rounds, numTeams, tieBreakerRule };
+    const config = { teams, rounds, numTeams, tieBreakerRule, rules };
     const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -328,6 +334,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
     setTeams(config.teams);
     setRounds(processedRounds);
     setTieBreakerRule(config.tieBreakerRule || TieBreakerRule.ALL_TIES);
+    setRules(config.rules || '');
     showNotification(`Configuration "${name}" chargée !`);
   };
 
@@ -337,6 +344,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
     setRounds([]);
     setError('');
     setTieBreakerRule(TieBreakerRule.ALL_TIES);
+    setRules('');
     showNotification('Configuration effacée.');
   }
 
@@ -503,7 +511,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
         content += `  Question: ${q.questionText}\n`;
         if (q.clue) content += `  Indice: ${q.clue}\n`;
         content += `  Réponse: ${q.answer}\n`;
-        content += `  Points: ${q.points || 1}\n`;
+        content += `  Points: ${q.splitAnswer ? '2 (1+1)' : (q.points || 1)}\n`;
         if (q.timer) content += `  Chrono: ${q.timer} secondes\n`;
         content += `\n`;
       });
@@ -575,7 +583,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
           isCompleted: false
       }));
       
-      const settings: GameSettings = { tieBreakerRule };
+      const settings: GameSettings = { tieBreakerRule, rules };
 
       onSetupComplete(finalTeams, finalRounds, settings);
   };
@@ -616,13 +624,28 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="block text-base font-medium text-brand-light/70">Points</label>
-                <input type="number" value={question.points || ''} min="1" onChange={e => handleQuestionChange(roundIndex, questionIndex, 'points', e.target.value as any)} placeholder="1" className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base"/>
+                <input type="number" value={question.points || ''} min="1" onChange={e => handleQuestionChange(roundIndex, questionIndex, 'points', e.target.value as any)} placeholder="1" className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base disabled:bg-brand-dark/30 disabled:cursor-not-allowed" disabled={!!question.splitAnswer}/>
               </div>
               <div className="flex-1">
                 <label className="block text-base font-medium text-brand-light/70">Chrono (sec)</label>
                 <input type="number" value={question.timer || ''} min="1" onChange={e => handleQuestionChange(roundIndex, questionIndex, 'timer', e.target.value as any)} placeholder="Optionnel" className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base"/>
               </div>
             </div>
+            
+            {(question.type === QuestionType.AUDIO || question.type === QuestionType.LIVE) && (
+                <div className="flex items-center space-x-3 pt-2">
+                    <input
+                        type="checkbox"
+                        id={`split-${roundIndex}-${questionIndex}`}
+                        checked={!!question.splitAnswer}
+                        onChange={(e) => handleQuestionChange(roundIndex, questionIndex, 'splitAnswer', e.target.checked)}
+                        className="h-5 w-5 rounded border-brand-gold/70 bg-brand-dark/50 text-brand-gold focus:ring-2 focus:ring-brand-gold"
+                    />
+                    <label htmlFor={`split-${roundIndex}-${questionIndex}`} className="text-base font-medium text-brand-light/90">
+                        Séparer les points Artiste / Titre (1pt + 1pt)
+                    </label>
+                </div>
+            )}
 
             <div className="flex space-x-2 pt-2">
                 {[QuestionType.LIVE, QuestionType.AUDIO].map(type => (
@@ -780,20 +803,37 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
         <h2 className="font-display text-2xl sm:text-3xl font-bold mb-4 text-brand-gold tracking-widest uppercase">2. Règles du Jeu</h2>
         <div>
           <h3 className="text-lg sm:text-xl font-medium text-brand-light/80 mb-3">Gestion des Égalités</h3>
-          <div className="space-y-3">
-            <label className="flex items-center cursor-pointer">
-              <input type="radio" name="tiebreaker" value={TieBreakerRule.NONE} checked={tieBreakerRule === TieBreakerRule.NONE} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer"/>
-              <span className="ml-3 text-base text-brand-light/90">Désactiver : les égalités sont autorisées.</span>
+          <div className="space-y-4">
+            <label className="flex items-start cursor-pointer">
+              <input type="radio" name="tiebreaker" value={TieBreakerRule.NONE} checked={tieBreakerRule === TieBreakerRule.NONE} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer mt-1"/>
+              <span className="ml-3 text-base text-brand-light/90">
+                Désactiver : les égalités sont autorisées.
+                <br />
+                <span className="text-sm text-brand-light/60">L'ordre des équipes à égalité sera déterminé au hasard.</span>
+              </span>
             </label>
-            <label className="flex items-center cursor-pointer">
-              <input type="radio" name="tiebreaker" value={TieBreakerRule.ALL_TIES} checked={tieBreakerRule === TieBreakerRule.ALL_TIES} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer"/>
+            <label className="flex items-start cursor-pointer">
+              <input type="radio" name="tiebreaker" value={TieBreakerRule.ALL_TIES} checked={tieBreakerRule === TieBreakerRule.ALL_TIES} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer mt-1"/>
               <span className="ml-3 text-base text-brand-light/90">Activer pour toutes les places : un défi départagera toutes les équipes à égalité.</span>
             </label>
-            <label className="flex items-center cursor-pointer">
-              <input type="radio" name="tiebreaker" value={TieBreakerRule.FIRST_PLACE_ONLY} checked={tieBreakerRule === TieBreakerRule.FIRST_PLACE_ONLY} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer"/>
-              <span className="ml-3 text-base text-brand-light/90">Activer uniquement pour la 1ère place : un défi ne départagera que les ex æquo pour la victoire.</span>
+            <label className="flex items-start cursor-pointer">
+              <input type="radio" name="tiebreaker" value={TieBreakerRule.FIRST_PLACE_ONLY} checked={tieBreakerRule === TieBreakerRule.FIRST_PLACE_ONLY} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer mt-1"/>
+              <span className="ml-3 text-base text-brand-light/90">
+                Activer uniquement pour la 1ère place : un défi ne départagera que les ex æquo pour la victoire.
+                 <br />
+                <span className="text-sm text-brand-light/60">Les autres égalités seront classées au hasard.</span>
+              </span>
             </label>
           </div>
+        </div>
+        <div className="mt-6">
+            <h3 className="text-lg sm:text-xl font-medium text-brand-light/80 mb-3">Condition de Victoire / Règles Spécifiques</h3>
+            <textarea
+                value={rules}
+                onChange={(e) => setRules(e.target.value)}
+                placeholder="Optionnel. Si rempli, un écran affichera ces règles au début de la partie."
+                className="w-full h-24 bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition text-base"
+            />
         </div>
       </div>
 

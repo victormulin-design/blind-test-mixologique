@@ -1,7 +1,8 @@
 
-
 {
     "numTeams": 6,
+    "tieBreakerRule": "ALL_TIES",
+    "rules": "Bienvenue à tous !\nCe soir, la musique est votre guide, mais la vraie récompense se trouve au bout du chemin.\n\nChaque bonne réponse vous rapportera un ingrédient précieux pour la création d'un cocktail. \nMais attention, ces élixirs ne seront pas pour vous ! \nIls seront dégustés par Josselin et Cosette, nos deux experts du goût. C'est leur palais, si affûté par des années de métier, qui désignera le véritable gagnant de la soirée.\n\nAvant de démarrer, une seule et unique règle pour pimenter la partie :\npour éviter qu'un champion ne s'envole en tête, celui qui gagne un point est mis sur pause pour le tour suivant. \nMais pas de panique, vous pourrez repartir de plus belle juste après !\nVotre oreille vous donne le choix des armes. Votre flair de mixologue vous donnera la victoire. \nÀ vos marques, prêts ? \nQue la fête commence !",
     "teams": [
         { "name": "Les Cinquantenaires" }, 
         { "name": "Golden Oldies" }, 
@@ -36,11 +37,11 @@
         {
             "name": "Musiques de film - Alcool",
             "prizePool": [
-                { "name": "Tequila", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZDRTkxIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMTMgNC41TDExIDEyTTcgMmgxME0xMyA0LjVMMTUgMTIiIC8+Cjwvc3ZnPg==" },
+                { "name": "Tequila", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZDRTkxIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2EtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2EtbGluZWpvaW49InJvdW5kIiBkPSJNMTMgNC41TDExIDEyTTcgMmgxME0xMyA0LjVMMTUgMTIiIC8+Cjwvc3ZnPg==" },
                 { "name": "Vodka", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjVFRkU2IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+Cjwvc3ZnPg==" },
                 { "name": "Schrik koko", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQkRBREFEIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSA5Yy41LTEgMS41LTIgMy0yIDEuNSAyIDMgMyAzIDYgMC0zIDEuNS00IDMtNiAxLjUgMiAzIDUgMyA4IiAvPgo8L3N2Zz4=" },
                 { "name": "Crème de Fruits", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjE1RTc5IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVptMyAxMWwtMi01IiAvPgo8L3N2Zz4=" },
-                { "name": "Gin", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQUZEM0E4IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+CiAgPGNpcmNsZSBjeD0iMTMiIGN5PSIxNCIgcj0iNCIgLz4KPC9zdmc+" },
+                { "name": "Gin", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQUZEM0E4IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2EtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+CiAgPGNpcmNsZSBjeD0iMTMiIGN5PSIxNCIgcj0iNCIgLz4KPC9zdmc+" },
                 { "name": "Kirsch", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRTU0ODQ4IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+CiAgPGNpcmNsZSBjeD0iMTMiIGN5PSIxMyIgcj0iMiIgLz4KICA8cGF0aCBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGQ9Ik0xMyA0VjExTTIgOGg2IiAvPgo8L3N2Zz4=" }
             ],
             "questions": [

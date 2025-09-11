@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { Team, Round, Question, Prize, GameSettings } from '../types';
 import { TieBreakerRule } from '../types';
 import { TrophyIcon, PlayIcon, PauseIcon, UndoIcon, CocktailIcon } from './IconComponents';
@@ -9,6 +9,11 @@ interface GameScreenProps {
   initialRounds: Round[];
   settings: GameSettings;
 }
+
+// ===== TYPES for state =====
+type Award = { teamId: string; roundId: string; points: number; part: string };
+type AwardInfo = Omit<Award, 'roundId'>;
+
 
 const shouldCheckForTie = (
     tie: { teams: Team[]; rank: number } | null,
@@ -24,30 +29,42 @@ const shouldCheckForTie = (
 };
 
 // ===== HORIZONTAL SCOREBOARD =====
-const HorizontalScoreboard: React.FC<{ teams: Team[] }> = ({ teams }) => (
+const HorizontalScoreboard: React.FC<{ teams: Team[]; currentRound: Round; }> = ({ teams, currentRound }) => (
   <div className="w-full bg-brand-dark/60 backdrop-blur-md p-2 [&[data-screen-profile=small]]:p-1 rounded-xl border-2 border-brand-gold/50">
     <div className="flex flex-wrap justify-center gap-3 [&[data-screen-profile=small]]:gap-2 items-stretch">
-      {teams.map((team) => (
-        <div key={team.id} className="flex flex-row items-start gap-4 flex-1 min-w-[250px] [&[data-screen-profile=small]]:min-w-[200px] max-w-md bg-brand-dark/80 p-3 [&[data-screen-profile=small]]:p-2 rounded-lg border border-brand-gold/30">
-          <div className="flex-shrink-0 text-left">
-            <p className="text-lg sm:text-xl [&[data-screen-profile=small]]:text-base font-bold text-brand-light break-words" title={team.name}>{team.name}</p>
-            <p className="text-xl sm:text-2xl [&[data-screen-profile=small]]:text-lg font-bold text-brand-gold">{Math.round(Object.values(team.scores).reduce((a, b) => a + b, 0))}</p>
+      {teams.map((team) => {
+        const totalScore = Math.round(Object.values(team.scores).reduce((a, b) => a + b, 0));
+        const roundScore = currentRound ? Math.round(team.scores[currentRound.id] || 0) : 0;
+        
+        return (
+          <div key={team.id} className="flex flex-row items-start gap-4 flex-1 min-w-[250px] [&[data-screen-profile=small]]:min-w-[200px] max-w-md bg-brand-dark/80 p-3 [&[data-screen-profile=small]]:p-2 rounded-lg border border-brand-gold/30">
+            <div className="flex-shrink-0 text-left">
+              <p className="text-lg sm:text-xl [&[data-screen-profile=small]]:text-base font-bold text-brand-light break-words" title={team.name}>{team.name}</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-xl sm:text-2xl [&[data-screen-profile=small]]:text-lg font-bold text-brand-gold">{totalScore}</p>
+                {roundScore > 0 && (
+                  <p className="text-base sm:text-lg [&[data-screen-profile=small]]:text-sm text-green-400 font-semibold">
+                    (+{roundScore})
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex-grow pt-1 text-right">
+              {team.collectedPrizes.length > 0 ? (
+                  <div className="space-y-1 text-brand-light/90 text-right">
+                      {team.collectedPrizes.map(prize => (
+                          <div key={prize.id} className="text-base sm:text-lg [&[data-screen-profile=small]]:text-sm" title={prize.name}>
+                              {prize.name}
+                          </div>
+                      ))}
+                  </div>
+              ) : (
+                  <p className="text-sm text-brand-light/50 italic h-full flex items-center justify-end">Aucun ingrédient</p>
+              )}
+            </div>
           </div>
-          <div className="flex-grow pt-1">
-            {team.collectedPrizes.length > 0 ? (
-                <ul className="space-y-1 list-disc list-inside text-brand-light/90">
-                    {team.collectedPrizes.map(prize => (
-                        <li key={prize.id} className="text-base sm:text-lg [&[data-screen-profile=small]]:text-sm" title={prize.name}>
-                            {prize.name}
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p className="text-sm text-brand-light/50 italic h-full flex items-center">Aucun ingrédient</p>
-            )}
-          </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   </div>
 );
@@ -173,14 +190,18 @@ const CurrentRoundPrizes: React.FC<{prizes: Prize[], prizeCategory?: string}> = 
 
 
 // ===== QUESTION DISPLAY =====
-const QuestionDisplay: React.FC<{ question: Question; round: Round; questionNumber: number; totalQuestions: number; teams: Team[]; onCorrect: (teamId: string, points: number) => void; }> = 
-({ question, questionNumber, totalQuestions, teams, onCorrect }) => {
+const QuestionDisplay: React.FC<{ question: Question; round: Round; questionNumber: number; totalQuestions: number; teams: Team[]; onAwards: (awards: AwardInfo[]) => void; }> = 
+({ question, questionNumber, totalQuestions, teams, onAwards }) => {
     const [isClueVisible, setIsClueVisible] = useState(false);
     const [timeLeft, setTimeLeft] = useState(question.timer);
+    const [artistAward, setArtistAward] = useState<string | null>(null);
+    const [titleAward, setTitleAward] = useState<string | null>(null);
 
     useEffect(() => {
         setIsClueVisible(false);
         setTimeLeft(question.timer);
+        setArtistAward(null);
+        setTitleAward(null);
 
         if (question.timer) {
             const interval = setInterval(() => {
@@ -198,18 +219,39 @@ const QuestionDisplay: React.FC<{ question: Question; round: Round; questionNumb
 
     const handleTeamClick = (teamId: string) => {
         const pointsToAward = (question.timer && timeLeft === 0) ? 1 : (question.points || 1);
-        onCorrect(teamId, pointsToAward);
+        onAwards([{ teamId, points: pointsToAward, part: 'answer' }]);
+    };
+    
+    const handleSubmitSplit = () => {
+        const awards: AwardInfo[] = [];
+        if (artistAward) awards.push({ teamId: artistAward, part: 'Artiste', points: 1 });
+        if (titleAward) awards.push({ teamId: titleAward, part: 'Titre', points: 1 });
+        onAwards(awards);
+    };
+
+    const renderPointsBanner = () => {
+        if (question.splitAnswer) {
+            return (
+                <div className="bg-brand-gold text-brand-dark font-bold px-3 py-1 sm:px-4 text-base sm:text-lg [&[data-screen-profile=small]]:px-2 [&[data-screen-profile=small]]:text-sm shadow-lg inline-block">
+                    2 POINTS (1+1)
+                </div>
+            )
+        }
+        if (question.points && question.points > 1) {
+            return (
+                <div className="bg-brand-gold text-brand-dark font-bold px-3 py-1 sm:px-4 text-base sm:text-lg [&[data-screen-profile=small]]:px-2 [&[data-screen-profile=small]]:text-sm shadow-lg inline-block animate-pulse">
+                    {question.points} POINTS !
+                </div>
+            )
+        }
+        return null;
     }
 
     return (
         <div className="bg-brand-dark/80 backdrop-blur-md p-4 sm:p-6 [&[data-screen-profile=small]]:p-2 rounded-b-xl shadow-2xl border-2 border-t-0 border-brand-gold/50 w-full max-w-7xl animate-fade-in text-center flex flex-col min-h-[550px] [&[data-screen-profile=small]]:min-h-0">
             <div className="flex justify-between items-start">
                 <div className="text-left">
-                    {(question.points && question.points > 1) &&
-                        <div className="bg-brand-gold text-brand-dark font-bold px-3 py-1 sm:px-4 text-base sm:text-lg [&[data-screen-profile=small]]:px-2 [&[data-screen-profile=small]]:text-sm shadow-lg inline-block animate-pulse">
-                            {question.points} POINTS !
-                        </div>
-                    }
+                    {renderPointsBanner()}
                 </div>
                 <div className="text-right">
                     <span className="text-lg sm:text-2xl [&[data-screen-profile=small]]:text-base text-brand-light/60 font-display tracking-wider">Question {questionNumber} / {totalQuestions}</span>
@@ -245,31 +287,91 @@ const QuestionDisplay: React.FC<{ question: Question; round: Round; questionNumb
             </div>
 
             <div className="mt-4 flex-shrink-0">
-                <h3 className="font-display text-xl sm:text-2xl [&[data-screen-profile=small]]:text-lg font-semibold mb-3 text-brand-light/90 tracking-wider">Qui a répondu correctement ?</h3>
-                <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
-                    {teams.map(team => (
-                        <button key={team.id} onClick={() => handleTeamClick(team.id)} className="px-5 py-3 bg-transparent border-2 border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-dark rounded-lg font-bold text-base sm:text-lg text-center transition-all duration-200 transform hover:scale-105 shadow-md min-w-[160px] [&[data-screen-profile=small]]:px-3 [&[data-screen-profile=small]]:py-2 [&[data-screen-profile=small]]:text-sm [&[data-screen-profile=small]]:min-w-0 break-words">
-                            {team.name}
-                        </button>
-                    ))}
-                </div>
+                {!question.splitAnswer ? (
+                     <div>
+                        <h3 className="font-display text-xl sm:text-2xl [&[data-screen-profile=small]]:text-lg font-semibold mb-3 text-brand-light/90 tracking-wider">Qui a répondu correctement ?</h3>
+                        <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+                            {teams.map(team => (
+                                <button key={team.id} onClick={() => handleTeamClick(team.id)} className="px-5 py-3 bg-transparent border-2 border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-dark rounded-lg font-bold text-base sm:text-lg text-center transition-all duration-200 transform hover:scale-105 shadow-md min-w-[160px] [&[data-screen-profile=small]]:px-3 [&[data-screen-profile=small]]:py-2 [&[data-screen-profile=small]]:text-sm [&[data-screen-profile=small]]:min-w-0 break-words">
+                                    {team.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                     <div className="space-y-6">
+                        <h3 className="font-display text-xl sm:text-2xl [&[data-screen-profile=small]]:text-lg font-semibold mb-3 text-brand-light/90 tracking-wider">Qui a répondu correctement ?</h3>
+                        <div className="flex flex-wrap justify-center gap-4">
+                            {teams.map(team => (
+                                <div key={team.id} className="bg-brand-dark/50 p-1 rounded-xl border border-brand-gold/50 text-center w-64 [&[data-screen-profile=small]]:w-48 flex flex-col">
+                                    <p className="text-base sm:text-lg [&[data-screen-profile=small]]:text-base font-bold text-brand-light mb-2 truncate" title={team.name}>
+                                        {team.name}
+                                    </p>
+                                    <div className="flex justify-center gap-2">
+                                        <button 
+                                            onClick={() => setArtistAward(prev => prev === team.id ? null : team.id)}
+                                            className={`flex-1 px-2 py-1 rounded-lg font-semibold text-sm sm:text-base transition-colors duration-200 transform hover:scale-105 ${artistAward === team.id ? 'bg-brand-gold text-brand-dark' : 'bg-transparent border border-brand-gold/70 text-brand-gold hover:bg-brand-gold/20'}`}
+                                        >
+                                            Artiste
+                                        </button>
+                                        <button 
+                                            onClick={() => setTitleAward(prev => prev === team.id ? null : team.id)}
+                                            className={`flex-1 px-2 py-1 rounded-lg font-semibold text-sm sm:text-base transition-colors duration-200 transform hover:scale-105 ${titleAward === team.id ? 'bg-brand-gold text-brand-dark' : 'bg-transparent border border-brand-gold/70 text-brand-gold hover:bg-brand-gold/20'}`}
+                                        >
+                                            Titre
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="pt-2">
+                            <button onClick={handleSubmitSplit} className="font-display w-full max-w-md mx-auto py-2 bg-brand-burgundy hover:bg-brand-burgundy-dark rounded-lg font-bold text-xl sm:text-2xl tracking-widest uppercase transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                Valider & Révéler
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )
 }
 
 // ===== ANSWER DISPLAY =====
-const AnswerDisplay: React.FC<{ question: Question; onNext: () => void; isLastQuestion: boolean; onUndo: () => void; canUndo: boolean; correctTeamName?: string; }> = ({ question, onNext, isLastQuestion, onUndo, canUndo, correctTeamName }) => {
+const AnswerDisplay: React.FC<{ question: Question; onNext: () => void; isLastQuestion: boolean; onUndo: () => void; canUndo: boolean; correctAwards: { part: string; teamName: string }[]; }> = ({ question, onNext, isLastQuestion, onUndo, canUndo, correctAwards }) => {
+    
+    const congratulationsMessage = useMemo(() => {
+        if (!correctAwards || correctAwards.length === 0) {
+            return null;
+        }
+        
+        // Check if both parts awarded to the same team for a special message
+        if (correctAwards.length === 2 && correctAwards[0].teamName === correctAwards[1].teamName) {
+            return `Bravo, <span class="font-bold">${correctAwards[0].teamName}</span> (Artiste et Titre) !`;
+        }
+        
+        // For all other cases (single winner, split winners)
+        const parts = correctAwards
+            .map(award => {
+                const teamNameHTML = `<span class="font-bold">${award.teamName}</span>`;
+                // Only add the part in parentheses if it's not the default 'answer'
+                if (award.part === 'answer') {
+                    return teamNameHTML;
+                }
+                return `${teamNameHTML} (${award.part})`;
+            })
+            .join(' et ');
+
+        return `Bravo, ${parts} !`;
+    }, [correctAwards]);
     
     return (
         <div className="bg-brand-dark/80 backdrop-blur-md p-4 sm:p-6 [&[data-screen-profile=small]]:p-2 rounded-b-xl shadow-2xl border-2 border-t-0 border-brand-gold/50 w-full max-w-7xl animate-fade-in text-center flex flex-col min-h-[550px] [&[data-screen-profile=small]]:min-h-0">
             <div className="flex-grow flex flex-col justify-center">
                 <p className="text-lg sm:text-2xl [&[data-screen-profile=small]]:text-base text-brand-light/70 font-display tracking-wider">{question.questionText}</p>
                 
-                {correctTeamName && (
-                    <p className="mt-8 text-2xl sm:text-3xl [&[data-screen-profile=small]]:text-xl text-brand-gold animate-fade-in">
-                        Bravo, <span className="font-bold">{correctTeamName}</span> !
-                    </p>
+                {congratulationsMessage && (
+                    <p className="mt-8 text-2xl sm:text-3xl [&[data-screen-profile=small]]:text-xl text-brand-gold animate-fade-in"
+                       dangerouslySetInnerHTML={{ __html: congratulationsMessage }} />
                 )}
 
                 <h2 className="text-2xl sm:text-3xl [&[data-screen-profile=small]]:text-xl mt-6 font-semibold text-brand-light font-display tracking-widest">LA RÉPONSE EST...</h2>
@@ -305,7 +407,11 @@ const AnswerDisplay: React.FC<{ question: Question; onNext: () => void; isLastQu
 
 // ===== ROUND SUMMARY =====
 const RoundSummaryDisplay: React.FC<{ round: Round; teams: Team[]; onConfirmPrizes: (selections: Record<string, Prize>) => void; onBack: () => void; }> = ({ round, teams, onConfirmPrizes, onBack }) => {
-    const rankedTeams = [...teams].sort((a, b) => (b.scores[round.id] || 0) - (a.scores[round.id] || 0));
+    const rankedTeams = useMemo(() => {
+        const getRoundScore = (team: Team) => team.scores[round.id] || 0;
+        return [...teams].sort((a, b) => getRoundScore(b) - getRoundScore(a) || Math.random() - 0.5);
+    }, [teams, round.id]);
+
     const [selections, setSelections] = useState<Record<string, string>>({}); // teamId -> prizeId
 
     const handleSelectPrize = (teamId: string, prizeId: string) => {
@@ -321,6 +427,7 @@ const RoundSummaryDisplay: React.FC<{ round: Round; teams: Team[]; onConfirmPriz
                 });
                 newSelections[teamId] = prizeId;
             } else {
+                // FIX: Corrected variable from 'key' to 'teamId' to correctly remove the selection.
                 delete newSelections[teamId];
             }
 
@@ -463,13 +570,16 @@ const CelebrationAnimation: React.FC = () => {
 const FinalSummaryDisplay: React.FC<{ teams: Team[] }> = ({ teams }) => {
     const getTeamTotalScore = (team: Team) => Object.values(team.scores).reduce((a, b) => a + b, 0);
 
-    const rankedTeams = [...teams].sort((a, b) => getTeamTotalScore(b) - getTeamTotalScore(a));
+    const rankedTeams = useMemo(() => 
+        [...teams].sort((a, b) => getTeamTotalScore(b) - getTeamTotalScore(a) || Math.random() - 0.5),
+    [teams]);
     
     return (
     <div className="relative bg-brand-dark/80 backdrop-blur-md p-4 sm:p-6 [&[data-screen-profile=small]]:p-2 rounded-xl shadow-2xl border-2 border-brand-gold w-full max-w-7xl animate-fade-in text-center overflow-hidden">
         <CelebrationAnimation />
         <div className="relative z-10">
             <h2 className="font-display text-3xl sm:text-4xl [&[data-screen-profile=small]]:text-2xl font-bold text-brand-gold tracking-widest uppercase">Résultats Finaux</h2>
+            <p className="text-lg sm:text-xl [&[data-screen-profile=small]]:text-base mt-4 text-brand-light/80">Le classement est basé sur les points du blind test.</p>
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {rankedTeams.map((team, index) => (
@@ -502,6 +612,9 @@ const FinalSummaryDisplay: React.FC<{ teams: Team[] }> = ({ teams }) => {
                     </div>
                 ))}
             </div>
+             <p className="mt-8 font-display text-xl sm:text-2xl [&[data-screen-profile=small]]:text-lg font-bold text-brand-gold tracking-widest animate-pulse">
+                Et maintenant... que la dégustation commence pour désigner le VRAI gagnant ! 🥳
+            </p>
         </div>
     </div>
     )
@@ -538,6 +651,22 @@ const RoundHeader: React.FC<{ round: Round }> = ({ round }) => (
     </h2>
     <CurrentRoundPrizes prizes={round.prizePool} prizeCategory={round.prizeCategory} />
     <div className="border-t border-brand-gold/50 mt-4 mx-8"></div>
+  </div>
+);
+
+// ===== RULES DISPLAY =====
+const RulesDisplay: React.FC<{ rules: string; onAcknowledge: () => void }> = ({ rules, onAcknowledge }) => (
+  <div className="bg-brand-dark/80 backdrop-blur-md p-4 sm:p-6 rounded-xl shadow-2xl border-2 border-brand-gold/80 w-full max-w-4xl animate-fade-in text-center">
+    <h2 className="font-display text-3xl sm:text-4xl [&[data-screen-profile=small]]:text-2xl font-bold text-brand-gold tracking-widest uppercase">Règles du Jeu</h2>
+    <p className="whitespace-pre-wrap text-lg sm:text-xl [&[data-screen-profile=small]]:text-base my-6 text-brand-light/90 text-center">
+      {rules}
+    </p>
+    <button
+      onClick={onAcknowledge}
+      className="font-display w-full sm:w-auto px-8 py-3 bg-brand-gold text-brand-dark hover:bg-brand-light rounded-lg font-bold text-xl sm:text-2xl tracking-widest uppercase transition-all duration-300 transform hover:scale-105 shadow-lg"
+    >
+      Compris !
+    </button>
   </div>
 );
 
@@ -585,26 +714,45 @@ const GameScreen: React.FC<GameScreenProps> = ({ initialTeams, initialRounds, se
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [view, setView] = useState<'QUESTION' | 'ANSWER' | 'ROUND_SUMMARY'>('QUESTION');
-  const [answerHistory, setAnswerHistory] = useState<{ teamId: string; roundId: string; points: number }[]>([]);
-  const [lastCorrectTeamId, setLastCorrectTeamId] = useState<string | null>(null);
+  const [answerHistory, setAnswerHistory] = useState<Award[][]>([]);
+  const [lastCorrectAwards, setLastCorrectAwards] = useState<AwardInfo[] | null>(null);
+  const [rulesShown, setRulesShown] = useState(!settings.rules);
 
   const currentRound = rounds[currentRoundIndex];
-  const currentQuestion = currentRound?.questions[currentQuestionIndex];
   const isGameOver = currentRoundIndex >= rounds.length;
 
-  const handleCorrectAnswer = (teamId: string, points: number) => {
-    setTeams(prevTeams => prevTeams.map(team => 
-        team.id === teamId 
-            ? { ...team, scores: { ...team.scores, [currentRound.id]: (team.scores[currentRound.id] || 0) + points } }
-            : team
-    ));
-    setAnswerHistory(prev => [...prev, { teamId, roundId: currentRound.id, points }]);
-    setLastCorrectTeamId(teamId);
+  const currentQuestion = currentRound?.questions?.[currentQuestionIndex];
+
+  const handleAwards = (awards: AwardInfo[]) => {
+    if (awards.length === 0) {
+      // Allow revealing answer without points
+      setLastCorrectAwards([]);
+      setView('ANSWER');
+      return;
+    }
+
+    const fullAwards: Award[] = awards.map(a => ({ ...a, roundId: currentRound.id }));
+    
+    setTeams(prevTeams => {
+      const newTeams = JSON.parse(JSON.stringify(prevTeams));
+      fullAwards.forEach(award => {
+        const teamIndex = newTeams.findIndex((t: Team) => t.id === award.teamId);
+        if (teamIndex > -1) {
+          const teamToUpdate = newTeams[teamIndex];
+          teamToUpdate.scores[currentRound.id] = (teamToUpdate.scores[currentRound.id] || 0) + award.points;
+        }
+      });
+      return newTeams;
+    });
+
+    setAnswerHistory(prev => [...prev, fullAwards]);
+    setLastCorrectAwards(awards);
     setView('ANSWER');
   };
 
+
   const proceedToNextQuestion = () => {
-    setLastCorrectTeamId(null);
+    setLastCorrectAwards(null);
     const isLastQuestionInRound = currentQuestionIndex === currentRound.questions.length - 1;
     if (isLastQuestionInRound) {
         setView('ROUND_SUMMARY');
@@ -617,16 +765,22 @@ const GameScreen: React.FC<GameScreenProps> = ({ initialTeams, initialRounds, se
   const handleUndo = () => {
       if (answerHistory.length === 0) return;
 
-      const lastAnswer = answerHistory[answerHistory.length - 1];
+      const lastTurnAwards = answerHistory[answerHistory.length - 1];
       
-      setTeams(prevTeams => prevTeams.map(team => 
-        team.id === lastAnswer.teamId
-            ? { ...team, scores: { ...team.scores, [lastAnswer.roundId]: (team.scores[lastAnswer.roundId] || lastAnswer.points) - lastAnswer.points } }
-            : team
-      ));
+      setTeams(prevTeams => {
+        const newTeams = JSON.parse(JSON.stringify(prevTeams));
+        lastTurnAwards.forEach(award => {
+            const teamIndex = newTeams.findIndex((t: Team) => t.id === award.teamId);
+            if (teamIndex > -1) {
+                const teamToUpdate = newTeams[teamIndex];
+                teamToUpdate.scores[award.roundId] = (teamToUpdate.scores[award.roundId] || award.points) - award.points;
+            }
+        });
+        return newTeams;
+      });
 
       setAnswerHistory(prev => prev.slice(0, -1));
-      setLastCorrectTeamId(null);
+      setLastCorrectAwards(null);
       
       if (view === 'QUESTION') {
           // No change, allows re-assigning points
@@ -672,6 +826,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ initialTeams, initialRounds, se
   };
   
   const renderContent = () => {
+    if (!rulesShown && settings.rules) {
+      return <RulesDisplay rules={settings.rules} onAcknowledge={() => setRulesShown(true)} />;
+    }
+    
     if (isGameOver) {
       const sortedByTotal = [...teams].sort((a, b) => getTotalScore(b) - getTotalScore(a));
       const finalTie = findTie(sortedByTotal, getTotalScore);
@@ -703,7 +861,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ initialTeams, initialRounds, se
             questionNumber={currentQuestionIndex + 1}
             totalQuestions={currentRound.questions.length}
             teams={teams}
-            onCorrect={handleCorrectAnswer}
+            onAwards={handleAwards}
           />
         )}
         {view === 'ANSWER' && currentQuestion && (
@@ -713,7 +871,12 @@ const GameScreen: React.FC<GameScreenProps> = ({ initialTeams, initialRounds, se
                 isLastQuestion={currentQuestionIndex === currentRound.questions.length - 1}
                 onUndo={handleUndo}
                 canUndo={answerHistory.length > 0}
-                correctTeamName={teams.find(t => t.id === lastCorrectTeamId)?.name}
+                correctAwards={
+                    lastCorrectAwards?.map(award => ({
+                      part: award.part,
+                      teamName: teams.find(t => t.id === award.teamId)?.name || '?'
+                    })) || []
+                }
             />
         )}
       </>
@@ -722,7 +885,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ initialTeams, initialRounds, se
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-start p-2 sm:p-4 gap-4">
-      {!isGameOver && <HorizontalScoreboard teams={teams} />}
+      {!isGameOver && currentRound && <HorizontalScoreboard teams={teams} currentRound={currentRound} />}
       
       <div className="flex-grow flex flex-col items-center justify-center w-full">
          {renderContent()}
