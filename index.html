@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Soirée Blind Test</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'brand-dark': '#1a1a1a',
+              'brand-light': '#F5EFE6',
+              'brand-gold': '#D4AF37',
+              'brand-burgundy': '#800020',
+              'brand-burgundy-dark': '#600018',
+            },
+            fontFamily: {
+              'display': ['Poppins', 'sans-serif'],
+              'body': ['Lato', 'sans-serif'],
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-in-out',
+              'slide-in-up': 'slideInUp 0.6s ease-out forwards',
+              'glow': 'glow 2.5s infinite ease-in-out',
+              'bubbles': 'bubbles 3s ease-in infinite',
+              'clink-left': 'clink-and-away-left 3s ease-in-out forwards',
+              'clink-right': 'clink-and-away-right 3s ease-in-out forwards',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: 0 },
+                '100%': { opacity: 1 },
+              },
+              slideInUp: {
+                '0%': { transform: 'translateY(30px)', opacity: 0 },
+                '100%': { transform: 'translateY(0)', opacity: 1 },
+              },
+              glow: {
+                '0%, 100%': { boxShadow: '0 0 8px #D4AF37, 0 0 12px #D4AF37' },
+                '50%': { boxShadow: '0 0 20px #D4AF37, 0 0 30px #D4AF37' },
+              },
+              bubbles: {
+                '0%': { transform: 'translateY(0) scale(1)', opacity: 1 },
+                '100%': { transform: 'translateY(-100vh) scale(1.5)', opacity: 0 }
+              },
+              'clink-and-away-left': {
+                '0%': { transform: 'translateX(-100vw) scale(1.5) rotate(-15deg)', opacity: '0' },
+                '30%': { transform: 'translateX(-25%) scale(1.5) rotate(-15deg)', opacity: '1' },
+                '50%': { transform: 'translateX(-10%) scale(1.5) rotate(-25deg)' },
+                '60%': { transform: 'translateX(-15%) scale(1.5) rotate(-15deg)' },
+                '100%': { transform: 'translateX(-100vw) scale(1.5) rotate(-30deg)', opacity: '0' },
+              },
+              'clink-and-away-right': {
+                '0%': { transform: 'translateX(100vw) scale(1.5) rotate(15deg)', opacity: '0' },
+                '30%': { transform: 'translateX(25%) scale(1.5) rotate(15deg)', opacity: '1' },
+                '50%': { transform: 'translateX(10%) scale(1.5) rotate(25deg)' },
+                '60%': { transform: 'translateX(15%) scale(1.5) rotate(15deg)' },
+                '100%': { transform: 'translateX(100vw) scale(1.5) rotate(30deg)', opacity: '0' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #1a1a1a;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.05'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.19.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-brand-dark text-brand-light font-body">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,121 @@
+
+
+{
+    "numTeams": 6,
+    "teams": [
+        { "name": "Les Cinquantenaires" }, 
+        { "name": "Golden Oldies" }, 
+        { "name": "La Team 1975" }, 
+        { "name": "Les Années Folles" },
+        { "name": "Forever Young"},
+        { "name": "Les Sages"}
+    ],
+    "rounds": [
+        {
+            "name": "Musiques symboliques - Forme de verre",
+            "prizePool": [
+                { "name": "Verre à martini", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjVFRkU2IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMyAyMWg2bS0zIDBWMTFNMyAzaDE4TDEyIDEzbC05LTEwWiIgLz4KPC9zdmc+" },
+                { "name": "Verre long drink", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjVFRkU2IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNiAzSDE4VjIxSDZWM1pNMTUgM2wtMS41IDZNNiAzbDEuNSA2IiAvPgo8L3N2Zz4=" },
+                { "name": "Verre à spritz", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkY3NzAwIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAyMWg2bS0zIDBWMTRtNS41LTExSDMuNUM0LjUgMyA2LjUgNiA2LjUgOXM0IDEgNSA0bDQuNS0xMFoiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMjEgNWwtOCA5IiAvPgo8L3N2Zz4=" },
+                { "name": "Chope", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkRDRTkxIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHJlY3QgeD0iMyIgeT0iNSIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE2IiByeD0iMiIgLz4KICA8cGF0aCBzdHJva2UtbGluZWNhcD0icm91bmQiIGQ9Ik0xNyA5SDIxQzIyLjEgOSAyMyA5LjkgMjMgMTFWMThDMjMgMTkuMSAyMi4xIDIwIDIxIDIwSDE3IiAvPgo8L3N2Zz4=" },
+                { "name": "Verre à pied", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjVFRkU2IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAyMWg2bS0zIDBWMTRNNCA5YzAgNC40MiA4IDEyIDggMTIgMCAwIDgtNy41OCA4LTEyIDAtNC40Mi0zLjU4LTgtOC04cy04IDMuNTgtOCA4WiIgLz4KPC9zdmc+" },
+                { "name": "Ecocup", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjVFRkU2IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNSAzaDE0bDItMThIN3oiIC8+Cjwvc3ZnPg==" }
+            ],
+            "questions": [
+                { "questionText": "Devinez le titre et l'artiste", "clue": "Naissance papa, 23 janvier 1975", "answer": "Vanina - Dave", "type": "LIVE", "points": 1 },
+                { "questionText": "Devinez le titre et l'artiste", "clue": "Naissance maman, 6 aout 1975", "answer": "L’été indien - Joe Dassin", "type": "LIVE", "points": 1 },
+                { "questionText": "Devinez le titre et l'artiste", "clue": "Jour du mariage, 2 septembre 2000", "answer": "Les rois du monde - Comédie musicale “Roméo et Juliette”", "type": "LIVE", "points": 1 },
+                { "questionText": "Devinez le titre et l'artiste", "clue": "Musique entrée de bal", "answer": "Aimer - Damien Sargue, Comédie musicale “Roméo et Juliette”", "type": "LIVE", "points": 1 },
+                { "questionText": "Devinez le titre et l'artiste", "clue": "50 ans papa, 23 janvier 2025", "answer": "Nanani Nanana - Gazo", "type": "LIVE", "points": 1 },
+                { "questionText": "Devinez le titre et l'artiste", "clue": "50 ans maman, 6 aout 2025", "answer": "Soleil Bleu - Beau soleil", "type": "LIVE", "points": 1 },
+                { "questionText": "Devinez le titre et l'artiste", "clue": "Musique emblématique de Maman", "answer": "Le coup de soleil - Richard Cocciante", "type": "LIVE", "points": 1 },
+                { "questionText": "Devinez le titre et l'artiste", "clue": "Musique emblématique de Papa", "answer": "Tourner les serviettes - Patrick Sébastien", "type": "LIVE", "points": 1 },
+                { "questionText": "Devinez le titre et l'artiste", "clue": "Musique phare de l’année 1992 - année de rencontre", "answer": "Le chat - Pow woW", "type": "LIVE", "points": 1 }
+            ]
+        },
+        {
+            "name": "Musiques de film - Alcool",
+            "prizePool": [
+                { "name": "Tequila", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZDRTkxIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMTMgNC41TDExIDEyTTcgMmgxME0xMyA0LjVMMTUgMTIiIC8+Cjwvc3ZnPg==" },
+                { "name": "Vodka", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjVFRkU2IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+Cjwvc3ZnPg==" },
+                { "name": "Schrik koko", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQkRBREFEIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSA5Yy41LTEgMS41LTIgMy0yIDEuNSAyIDMgMyAzIDYgMC0zIDEuNS00IDMtNiAxLjUgMiAzIDUgMyA4IiAvPgo8L3N2Zz4=" },
+                { "name": "Crème de Fruits", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjE1RTc5IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVptMyAxMWwtMi01IiAvPgo8L3N2Zz4=" },
+                { "name": "Gin", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQUZEM0E4IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+CiAgPGNpcmNsZSBjeD0iMTMiIGN5PSIxNCIgcj0iNCIgLz4KPC9zdmc+" },
+                { "name": "Kirsch", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRTU0ODQ4IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+CiAgPGNpcmNsZSBjeD0iMTMiIGN5PSIxMyIgcj0iMiIgLz4KICA8cGF0aCBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGQ9Ik0xMyA0VjExTTIgOGg2IiAvPgo8L3N2Zz4=" }
+            ],
+            "questions": [
+                { "questionText": "De quel film provient cette musique ?", "clue": "Film en amoureux", "answer": "Aladin", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film provient cette musique ?", "clue": "Film de la jeunesse de maman.", "answer": "Gremlins", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film provient cette musique ?", "clue": "Film de la jeunesse de papa", "answer": "Rambo", "type": "LIVE", "points": 1 },
+                { "questionText": "Quel est le film préféré de maman ?", "answer": "Les Visiteurs", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film provient cette musique ?", "clue": "Film préféré de papa", "answer": "Le Grand Blond avec une chaussure noire", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film provient cette musique ?", "clue": "Film connu 1975", "answer": "Barry Lyndon", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film provient cette musique ?", "clue": "Film connu en 2000", "answer": "Saturday Night Fever (Bee Gees)", "type": "LIVE", "points": 1 }
+            ]
+        },
+        {
+            "name": "Génériques de dessins animés - Jus de fruit",
+            "prizePool": [
+                { "name": "Maracuja", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkY3NzAwIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOCIgLz4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSI0IiAvPgo8L3N2Zz4=" },
+                { "name": "Ananas", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkRDNDFBIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMTAgM0w4IDVMMTAgN0wxMiA1TDE0IDdMMTYgNUwxNCAzSDEwWm00IDRMMTAgMTJtMCAwbDgtOG0tNCA0bC04IDgiIC8+CiAgPGVsbGlwc2Ugcng9IjUiIHJ5PSI3IiBjeD0iMTIiIGN5PSIxNiIgLz4KPC9zdmc+" },
+                { "name": "Pomme", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNkNCMjVDIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMTAgM2MxLjUgMCAzIDEuNSA0IDNzMSA0IDQgNG0wLTJjLTEuNSAwLTMtMS41LTQtM3MtMS00LTQtNE04IDVjLS41LTEuNS0yLTMtNC0zIiAvPgo8Y2lyY2xlIGN4PSIxMiIgY3k9IjE0IiByPSI3IiAvPgo8L3N2Zz4=" },
+                { "name": "Orange", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkY3NzAwIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMTQgNGMuNS0xLjUgMi0yIDMtMiIgLz4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjE0IiByPSI3IiAvPgo8L3N2Zz4=" },
+                { "name": "Tomate", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRTU0ODQ4IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOCAzbDIgNEwxMiAzbDIgNEwxNiAzbDIgNG0tOCAxdjEgLz4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxNCIgcj0iNyIgLz4KPC9zdmc+" },
+                { "name": "Cranberry", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRDY1OUEyIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPGNpcmNsZSBjeD0iOS41IiBjeT0iOS41IiByPSIyLjUiIC8+CiAgPGNpcmNsZSBjeD0iMTQuNSIgY3k9IjkuNSIgcj0iMi41IiAvPgo8Y2lyY2xlIGN4PSIxMiIgY3k9IjE1IiByPSI0IiAvPgo8L3N2Zz4=" }
+            ],
+            "questions": [
+                { "questionText": "De quel dessin animé provient ce générique ?", "answer": "Goldorak", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel dessin animé provient ce générique ?", "answer": "Les mystérieuses cités d’Or", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel dessin animé provient ce générique ?", "answer": "Inspecteur Gadget", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel dessin animé provient ce générique ?", "answer": "Fraggle Rock", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel dessin animé provient ce générique ?", "answer": "Le Club Dorothée", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel dessin animé provient ce générique ?", "answer": "Les Totally Spies", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel dessin animé provient ce générique ?", "answer": "Scooby Doo", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel dessin animé provient ce générique ?", "answer": "Ulysse 31", "type": "LIVE", "points": 1 }
+            ]
+        },
+        {
+            "name": "Citation de film - Soft",
+            "prizePool": [
+                { "name": "Limonade", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkRDRTkxIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNiAzSDE4VjIxSDZWM1ptNiAwaDMuNUw4IDEwLjVIOVYxOE04IDEwaDgiIC8+Cjwvc3ZnPg==" },
+                { "name": "Eau pétillante", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQUREOEZGIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNiAzSDE4VjIxSDZWM1oiIC8+CiAgPGNpcmNsZSBjeD0iOSIgY3k9IjgiIHI9IjEiIC8+CiAgPGNpcmNsZSBjeD0iMTMiIGN5PSI3IiByPSIwLjUiIC8+CiAgPGNpcmNsZSBjeD0iMTQiIGN5PSIxMiIgcj0iMSIgLz4KICA8Y2lyY2xlIGN4PSIxMCIgY3k9IjE0IiByPSIwLjUiIC8+CiAgPGNpcmNsZSBjeD0iMTMiIGN5PSIxNyIgcj0iMSIgLz4KPC9zdmc+" },
+                { "name": "Ginger Beer", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQ0E5ODdCIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNiAzSDE4VjIxSDZWM1oiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMTYgOGwtMyA0IDYgNW0tOS04bDMgNi01IDMiIC8+Cjwvc3ZnPg==" },
+                { "name": "Schweppes Tonic", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkRDRTkxIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNiAzSDE4VjIxSDZWM1oiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNiA5aDEybS0xMiA2aDEyIiAvPgo8L3N2Zz4=" },
+                { "name": "Canada dry", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQ0E5ODdCIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNiAzSDE4VjIxSDZWM1oiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMTEgN2wtMS41IDUtLjUgNC41TTQgMjFoMTZtLTggMGwxLTZtLTIgNmwtMi03bS0xIDdsMy0xNG02IDFsLTMgMTRtMy0xNGwtMyAxNG0tMS0xNGwtMiA3bS0zLTdsMSA2IiAvPgo8L3N2Zz4=" },
+                { "name": "Eau plate", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjVFRkU2IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNiAzSDE4VjIxSDZWM1oiIC8+Cjwvc3ZnPg==" }
+            ],
+            "questions": [
+                { "questionText": "De quel film/sketch provient cette citation ?", "clue": "Vous nagez bien chef", "answer": "La Septième Compagnie", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film/sketch provient cette citation ?", "clue": "Mon p’tit Bernard", "answer": "Le Grand Blond avec une chaussure noire", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film/sketch provient cette citation ?", "clue": "Marie-Denise !", "answer": "L’hôpital - Les Inconnus", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film/sketch provient cette citation ?", "clue": "Benja, présent.", "answer": "Les caméras cachées de François l’embrouille", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film/sketch provient cette citation ?", "clue": "Adrienne !", "answer": "Rocky", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film/sketch provient cette citation ?", "clue": "Un sarrasin dans une chariotte du diable", "answer": "Les Visiteurs", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film/sketch provient cette citation ?", "clue": "Des frites, des frites, des frites !", "answer": "Les Tuches", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film/sketch provient cette citation ?", "clue": "Doigt mouchi", "answer": "Kung Fu Panda", "type": "LIVE", "points": 1 },
+                { "questionText": "De quel film/sketch provient cette citation ?", "clue": "J’avais dit un lance-roquette, pas un lance qui pète !", "answer": "Les Minions", "type": "LIVE", "points": 1 }
+            ]
+        },
+        {
+            "name": "Jingle de pub - Décoration",
+            "prizePool": [
+                { "name": "Menthe", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNkNCMjVDIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMTIgMjFWM200IDZjLTMgMC00IDMtNCAzcy0xLTMtNC0zbTEwIDVjLTMgMC00IDMtNCAzcy0xLTMtNC0zIiAvPgo8L3N2Zz4=" },
+                { "name": "Zeste d’orange", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkY3NzAwIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMjEgMTJjMC00LjYyLTMuMzgtOC41LTYtOS42MkM3LjM4IDMuNSAzIDEwLjUgMyAxMmMzIDYgOCAxMCA4IDEwTDIxIDEyWiIgLz4KPC9zdmc+" },
+                { "name": "Romarin", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNkNCMjVDIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMTIgMjFWM20wIDBjMi41IDIgNCA0LjUgNCA3LjVzLTEuNSA1LjUtNCA3LjVtMC0xNVM5LjUgNSA4IDYuNzVTNi41IDEwIDYuNSAxMi43NSA4IDE2IDggMTYiIC8+Cjwvc3ZnPg==" },
+                { "name": "Parasol", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjE1RTc5IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMjEuMDcgMTJMMTIgMjEuMDdNMjEuMDcgMTJBNy44MSA3LjgxIDAgMSAwIDEyIDIxLjA3TTIuOTMgMTJsOSA5LjA3TTIgMTJoMG0tMi0ySDJtMjAgMmgwTTIzIDloMG0wIDZIMjFNMTIgMlYyMW0wIDBMMiAxMm0xMC4wNyA5LjA3YTcuODEgNy44MSAwIDAgMS05LjA3LTkuMDciIC8+Cjwvc3ZnPg==" },
+                { "name": "Rondelle de citron", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkRDNDFBIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOSIgLz4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSI0IiAvPgo8cGF0aCBzdHJva2UtbGluZWNhcD0icm91bmQiIGQ9Ik0xMiAzVjIxTTMgMTJIMjFNNS42NCA1Ljc0bDEyLjcyIDEyLjUyTTUuNjQgMTguMzZsMTIuNzItMTIuNjIiIC8+Cjwvc3ZnPg==" },
+                { "name": "Sucre et sirop", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjVFRkU2IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNiAzaDEybDIgNXYxNEg0VjhMNiAzWiIgLz4KICA8cGF0aCBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1jaW5lam9pbj0icm91bmQiIGQ9Ik00IDhIMjBNNiAzaDMuNUw4IDEwLjVIOVYyME04IDEwaDgiIC8+CiAgPGNpcmNsZSBjeD0iMTYiIGN5PSIxMiIgcj0iMSIgLz4KICA8Y2lyY2xlIGN4PSIxNyIgY3k9IjE2IiByPSIwLjUiIC8+Cjwvc3ZnPg==" }
+            ],
+            "questions": [
+                { "questionText": "De quelle publicité provient ce jingle ?", "clue": "Je ferais pas ça tous les jours", "answer": "Pliz", "type": "LIVE", "points": 1 },
+                { "questionText": "De quelle publicité provient ce jingle ?", "answer": "Redair", "type": "LIVE", "points": 1 },
+                { "questionText": "De quelle publicité provient ce jingle ?", "answer": "Panzani", "type": "LIVE", "points": 1 },
+                { "questionText": "De quelle publicité provient ce jingle ?", "answer": "Tipiak", "type": "LIVE", "points": 1 },
+                { "questionText": "De quelle publicité provient ce jingle ?", "answer": "Carte Kiwi", "type": "LIVE", "points": 1 },
+                { "questionText": "De quelle publicité provient ce jingle ?", "clue": "La marmotte qui met le chocolat dans le papier d'alu", "answer": "Milka", "type": "LIVE", "points": 1 },
+                { "questionText": "De quelle publicité provient ce jingle ?", "answer": "L’ami Ricoré", "type": "LIVE", "points": 1 },
+                { "questionText": "De quelle publicité provient ce jingle ?", "clue": "Tu sais ce qu’il te dit le cassis ?", "answer": "Petit Pimousse", "type": "LIVE", "points": 1 }
+            ]
+        }
+    ]
+}
