@@ -4,10 +4,9 @@ import { LogoIcon, FolderOpenIcon } from './IconComponents';
 interface WelcomeScreenProps {
   onStart: () => void;
   onLoadGame: (file: File) => void;
-  onLoadPreset: (presetName: string) => void;
 }
 
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onLoadGame, onLoadPreset }) => {
+const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onLoadGame }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleLoadClick = () => {
@@ -40,12 +39,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onLoadGame, onLo
           className="font-display px-6 py-3 sm:px-8 sm:py-4 md:px-10 md:py-5 bg-brand-gold text-brand-dark hover:bg-brand-light rounded-lg font-bold text-lg sm:text-xl md:text-2xl tracking-widest uppercase transition-all duration-300 transform hover:scale-105 shadow-lg"
         >
           Créer une partie
-        </button>
-        <button
-          onClick={() => onLoadPreset('Blind-test-50ans-full')}
-          className="font-display px-6 py-3 sm:px-8 sm:py-4 md:px-10 md:py-5 bg-brand-burgundy text-brand-light hover:bg-brand-burgundy-dark rounded-lg font-bold text-lg sm:text-xl md:text-2xl tracking-widest uppercase transition-all duration-300 transform hover:scale-105 shadow-lg"
-        >
-          Soirée "50 ans"
         </button>
         <button
           onClick={handleLoadClick}

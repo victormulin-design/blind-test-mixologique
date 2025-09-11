@@ -10,7 +10,7 @@ We'll use a free service called **Netlify Drop**. You don't even need to sign up
 
 **Step 1: Get Your Project Files**
 - Make sure you have all the files for your application (`index.html`, `index.tsx`, `App.tsx`, `components/`, etc.) saved together in a single folder on your computer. Let's call this folder `blind-test-app`.
-- **Crucially**, make sure you also have the `Preconfigured_games` folder inside your `blind-test-app` folder, as it's needed to load the "Soirée '50 ans'" preset.
+- **Crucially**, make sure you also have the `Preconfigured_games` folder inside your `blind-test-app` folder. **If this folder is missing from the upload, the pre-configured games will not appear in the app.** It's needed to load the "Soirée '50 ans'" preset and others.
 
 **Step 2: Open Netlify Drop**
 - In your web browser, go to: [https://app.netlify.com/drop](https://app.netlify.com/drop)

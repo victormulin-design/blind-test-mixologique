@@ -91,24 +91,6 @@ const App: React.FC = () => {
     reader.readAsText(file);
   };
 
-  const handleLoadPreset = async (presetName: string) => {
-    if (presetName === 'Blind-test-50ans-full') {
-      try {
-        const response = await fetch(`/Preconfigured_games/${presetName}.json`);
-        if (!response.ok) {
-          throw new Error(`Le fichier de configuration '${presetName}.json' est introuvable ou n'a pas pu être chargé.`);
-        }
-        const config = await response.json();
-        processAndStartGame(config);
-      } catch (err: any) {
-        console.error('Failed to load preset configuration from file:', err);
-        alert(`Erreur lors du chargement du jeu préconfiguré: ${err.message}`);
-      }
-    } else {
-      alert(`Preset non reconnu: ${presetName}`);
-    }
-  };
-
   const isSetupOrWelcome = gameState === 'SETUP' || gameState === 'WELCOME';
 
   return (
@@ -133,7 +115,7 @@ const App: React.FC = () => {
         </header>
         <main className={`flex-grow animate-fade-in ${gameState === 'GAME' ? 'flex items-center justify-center p-2 sm:p-4 [&[data-screen-profile=small]]:p-1' : ''} ${gameState === 'WELCOME' ? 'flex flex-col items-center justify-center text-center' : ''}`}>
           {gameState === 'WELCOME' && (
-            <WelcomeScreen onStart={() => setGameState('SETUP')} onLoadGame={handleLoadGameFromFile} onLoadPreset={handleLoadPreset} />
+            <WelcomeScreen onStart={() => setGameState('SETUP')} onLoadGame={handleLoadGameFromFile} />
           )}
           {gameState === 'SETUP' && (
             <SetupScreen onSetupComplete={handleSetupComplete} />
