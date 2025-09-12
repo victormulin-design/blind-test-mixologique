@@ -52,7 +52,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onLoadGame }) =>
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          accept=".json"
+          accept=".json,.zip"
           className="hidden"
         />
     </div>

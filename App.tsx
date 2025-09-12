@@ -5,6 +5,51 @@ import SetupScreen from './components/SetupScreen';
 import GameScreen from './components/GameScreen';
 import WelcomeScreen from './components/WelcomeScreen';
 import { LogoIcon, CloseIcon } from './components/IconComponents';
+import JSZip from 'jszip';
+
+const processZipFile = async (file: File): Promise<any> => {
+    const zip = await JSZip.loadAsync(file);
+
+    const configFileEntry = zip.file(/config\.json$/i)[0];
+    if (!configFileEntry) {
+        throw new Error('Could not find config.json in the zip file.');
+    }
+    const configText = await configFileEntry.async('string');
+    const config = JSON.parse(configText);
+
+    if (!config.rounds || !Array.isArray(config.rounds)) {
+        return config;
+    }
+
+    const audioPathPrefixes = ['audio/', 'audios/', ''];
+
+    for (const round of config.rounds) {
+        if (round.questions && Array.isArray(round.questions)) {
+            for (const question of round.questions) {
+                if (question.type === 'AUDIO' && question.audioFileName && !question.audioUrl) {
+                    let audioFileEntry: any = null;
+                    for (const prefix of audioPathPrefixes) {
+                        const path = prefix + question.audioFileName;
+                        const entry = zip.file(path);
+                        if (entry) {
+                            audioFileEntry = entry;
+                            break;
+                        }
+                    }
+
+                    if (audioFileEntry) {
+                        const blob = await audioFileEntry.async('blob');
+                        question.audioUrl = URL.createObjectURL(blob);
+                    } else {
+                        console.warn(`Audio file "${question.audioFileName}" not found in zip.`);
+                    }
+                }
+            }
+        }
+    }
+    return config;
+};
+
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<'WELCOME' | 'SETUP' | 'GAME'>('WELCOME');
@@ -71,24 +116,35 @@ const App: React.FC = () => {
   };
 
   const handleLoadGameFromFile = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const text = e.target?.result;
-        if (typeof text !== 'string') {
-          throw new Error('Could not read file.');
-        }
-        const config = JSON.parse(text);
-        processAndStartGame(config);
-      } catch (err: any) {
-        console.error('Failed to load configuration:', err);
-        alert(`Error loading configuration file: ${err.message}`);
-      }
-    };
-    reader.onerror = () => {
-      alert('Failed to read the file.');
-    };
-    reader.readAsText(file);
+    if (file.name.endsWith('.zip')) {
+        processZipFile(file)
+            .then(config => {
+                processAndStartGame(config);
+            })
+            .catch((err: any) => {
+                console.error('Failed to load configuration from ZIP:', err);
+                alert(`Error loading configuration file from ZIP: ${err.message}`);
+            });
+    } else {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const text = e.target?.result;
+            if (typeof text !== 'string') {
+              throw new Error('Could not read file.');
+            }
+            const config = JSON.parse(text);
+            processAndStartGame(config);
+          } catch (err: any) {
+            console.error('Failed to load configuration:', err);
+            alert(`Error loading configuration file: ${err.message}`);
+          }
+        };
+        reader.onerror = () => {
+          alert('Failed to read the file.');
+        };
+        reader.readAsText(file);
+    }
   };
 
   const isSetupOrWelcome = gameState === 'SETUP' || gameState === 'WELCOME';

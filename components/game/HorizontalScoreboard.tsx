@@ -8,13 +8,13 @@ interface HorizontalScoreboardProps {
 
 const HorizontalScoreboard: React.FC<HorizontalScoreboardProps> = ({ teams, currentRound }) => (
   <div className="w-full bg-brand-dark/60 backdrop-blur-md p-2 [&[data-screen-profile=small]]:p-1 rounded-xl border-2 border-brand-gold/50">
-    <div className="flex flex-wrap justify-center gap-3 [&[data-screen-profile=small]]:gap-2 items-stretch">
+    <div className="flex flex-nowrap justify-start gap-3 [&[data-screen-profile=small]]:gap-2 items-stretch overflow-x-auto custom-scrollbar pb-3">
       {teams.map((team) => {
         const totalScore = Math.round(Object.values(team.scores).reduce((a, b) => a + b, 0));
         const roundScore = currentRound ? Math.round(team.scores[currentRound.id] || 0) : 0;
         
         return (
-          <div key={team.id} className="flex flex-row items-start gap-4 flex-1 min-w-[250px] [&[data-screen-profile=small]]:min-w-[200px] max-w-md bg-brand-dark/80 p-3 [&[data-screen-profile=small]]:p-2 rounded-lg border border-brand-gold/30">
+          <div key={team.id} className="flex flex-row items-start gap-4 flex-1 min-w-[250px] [&[data-screen-profile=small]]:min-w-[200px] max-w-md bg-brand-dark/80 p-3 [&[data-screen-profile=small]]:p-2 rounded-lg border border-brand-gold/30 flex-shrink-0">
             <div className="flex-shrink-0 text-left">
               <p className="text-lg sm:text-xl [&[data-screen-profile=small]]:text-base font-bold text-brand-light break-words" title={team.name}>{team.name}</p>
               <div className="flex items-baseline gap-2">

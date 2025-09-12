@@ -2,9 +2,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { Team, Round, Prize, Question, GameSettings } from '../types';
 import { TieBreakerRule } from '../types';
-import { PlusIcon, TrashIcon, UploadIcon, DownloadIcon, SaveIcon, FolderOpenIcon, ClearIcon, SpinnerIcon } from './IconComponents';
+import { PlusIcon, TrashIcon, UploadIcon, DownloadIcon, SaveIcon, FolderOpenIcon, ClearIcon, SpinnerIcon, ChevronDownIcon } from './IconComponents';
 import { GoogleGenAI, Type } from "@google/genai";
 import RoundsSetup from './setup/RoundsSetup';
+import JSZip from 'jszip';
 
 
 interface SetupScreenProps {
@@ -46,6 +47,48 @@ const aiResponseSchema = {
     },
 };
 
+const processZipFile = async (file: File): Promise<any> => {
+    const zip = await JSZip.loadAsync(file);
+
+    const configFileEntry = zip.file(/config\.json$/i)[0];
+    if (!configFileEntry) {
+        throw new Error('Could not find config.json in the zip file.');
+    }
+    const configText = await configFileEntry.async('string');
+    const config = JSON.parse(configText);
+
+    if (!config.rounds || !Array.isArray(config.rounds)) {
+        return config;
+    }
+
+    const audioPathPrefixes = ['audio/', 'audios/', ''];
+
+    for (const round of config.rounds) {
+        if (round.questions && Array.isArray(round.questions)) {
+            for (const question of round.questions) {
+                if (question.type === 'AUDIO' && question.audioFileName && !question.audioUrl) {
+                    let audioFileEntry: any = null;
+                    for (const prefix of audioPathPrefixes) {
+                        const path = prefix + question.audioFileName;
+                        const entry = zip.file(path);
+                        if (entry) {
+                            audioFileEntry = entry;
+                            break;
+                        }
+                    }
+
+                    if (audioFileEntry) {
+                        const blob = await audioFileEntry.async('blob');
+                        question.audioUrl = URL.createObjectURL(blob);
+                    } else {
+                        console.warn(`Audio file "${question.audioFileName}" not found in zip.`);
+                    }
+                }
+            }
+        }
+    }
+    return config;
+};
 
 const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
   const [numTeams, setNumTeams] = useState(2);
@@ -63,6 +106,14 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
 
   const [isAiMatching, setIsAiMatching] = useState(false);
   const [aiStatus, setAiStatus] = useState('');
+  
+  const [openSections, setOpenSections] = useState<string[]>(['bureau', 'concurrents', 'regles', 'manches']);
+
+  const toggleSection = (section: string) => {
+      setOpenSections(prev => 
+          prev.includes(section) ? prev.filter(s => s !== section) : [...prev, section]
+      );
+  };
 
 
   useEffect(() => {
@@ -199,27 +250,38 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
     URL.revokeObjectURL(url);
   };
 
-  const handleImportConfig = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportConfig = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const text = e.target?.result;
-        const config = JSON.parse(text as string);
-        if (Array.isArray(config.teams) && Array.isArray(config.rounds) && typeof config.numTeams === 'number') {
+    if (file.name.endsWith('.zip')) {
+        try {
+            showNotification('Traitement du fichier ZIP...');
+            const config = await processZipFile(file);
             loadPreset(config, file.name);
-            showNotification('Configuration importée avec succès !');
-        } else {
-          setError('Structure de fichier de configuration invalide.');
+            showNotification('Configuration ZIP importée avec succès !');
+        } catch (err: any) {
+            setError('Échec du traitement du fichier ZIP: ' + err.message);
         }
-      } catch (err) {
-        setError('Échec de l\'analyse du fichier de configuration.');
-      }
-    };
-    reader.readAsText(file);
-    event.target.value = ''; 
+    } else {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const text = e.target?.result;
+                const config = JSON.parse(text as string);
+                if (Array.isArray(config.teams) && Array.isArray(config.rounds) && typeof config.numTeams === 'number') {
+                    loadPreset(config, file.name);
+                    showNotification('Configuration JSON importée avec succès !');
+                } else {
+                    setError('Structure de fichier de configuration invalide.');
+                }
+            } catch (err) {
+                setError('Échec de l\'analyse du fichier de configuration.');
+            }
+        };
+        reader.readAsText(file);
+    }
+    event.target.value = '';
   };
   
   const loadPreset = (config: any, name: string) => {
@@ -499,64 +561,71 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
       )}
 
       {/* Config Management */}
-       <div className="bg-brand-dark/50 p-6 rounded-lg border-2 border-brand-gold/50 shadow-lg">
-          <h2 className="font-display text-2xl sm:text-3xl font-bold mb-4 text-brand-gold tracking-widest uppercase">Le Bureau</h2>
-           <div className="flex flex-wrap items-start gap-4 justify-end">
-              <button onClick={handleExportConfig} className="flex items-center px-4 py-2 bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20 rounded-md font-semibold transition-colors text-sm sm:text-base">
-                  <DownloadIcon className="h-5 w-5 mr-2" /> Exporter la Config
-              </button>
-              <label className="flex items-center px-4 py-2 bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20 rounded-md font-semibold transition-colors cursor-pointer text-sm sm:text-base">
-                  <UploadIcon className="h-5 w-5 mr-2" /> Importer la Config
-                  <input type="file" accept=".json" className="hidden" ref={importFileRef} onChange={handleImportConfig}/>
-              </label>
-              <div className="flex items-center gap-4">
-                <label className={`flex items-center px-4 py-2 bg-blue-800 rounded-md font-semibold transition-colors text-sm sm:text-base text-white ${isAiMatching ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-700 cursor-pointer'}`}>
-                    <UploadIcon className="h-5 w-5 mr-2" /> Charger Audios en Masse
-                    <input type="file" accept="audio/*" multiple className="hidden" ref={bulkAudioFileRef} onChange={handleBulkAudioUpload} disabled={isAiMatching} />
-                </label>
-                {isAiMatching && (
-                    <div className="flex items-center gap-2 text-brand-light animate-fade-in">
-                        <SpinnerIcon className="h-6 w-6 text-brand-gold animate-spin" />
-                        <span className="font-semibold">{aiStatus}</span>
-                    </div>
-                )}
-              </div>
-               <button onClick={handleClearAll} className="flex items-center px-4 py-2 bg-brand-dark/50 border border-brand-burgundy hover:bg-brand-burgundy rounded-md font-semibold transition-colors text-sm sm:text-base">
-                  <ClearIcon className="h-5 w-5 mr-2" /> Tout Effacer
-              </button>
-          </div>
-          <div className="mt-6 border-t-2 border-brand-gold/30 pt-4">
-            <h3 className="text-lg sm:text-xl font-semibold mb-2 text-brand-light/80">Gestion des Configurations</h3>
-            
-            {/* --- SAVING --- */}
-            <div className="flex items-center gap-2 mb-4">
-              <input type="text" value={newConfigName} onChange={e => setNewConfigName(e.target.value)} placeholder="Nommer et sauvegarder la config actuelle" className="flex-grow bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base"/>
-              <button onClick={handleSaveConfig} className="flex items-center px-4 py-2 bg-brand-gold text-brand-dark hover:bg-brand-light rounded-md font-semibold transition-colors text-sm sm:text-base">
-                  <SaveIcon className="h-5 w-5 mr-2" /> Sauver
-              </button>
-            </div>
-            
-            {/* --- LOADING --- */}
-            {availableConfigs.length > 0 ? (
-                <div className="space-y-2">
-                    {availableConfigs.sort((a,b) => a.name.localeCompare(b.name)).map(config => (
-                        <div key={`${config.source}-${config.name}`} className="flex items-center justify-between bg-brand-dark/30 p-2 rounded-md border border-brand-gold/30">
-                            <span className="font-medium text-base sm:text-lg flex items-center">
-                                {config.name}
-                                {config.source === 'preconfigured' && <span title="Configuration pré-enregistrée" className="ml-2 text-xs bg-brand-burgundy text-white px-2 py-0.5 rounded-full">PRÉCONFIGURÉ</span>}
-                                {config.source === 'local' && <span title="Sauvegardé dans votre navigateur" className="ml-2 text-xs bg-blue-800 text-white px-2 py-0.5 rounded-full">LOCAL</span>}
-                            </span>
-                            <div className="flex items-center gap-2">
-                                <button onClick={() => handleLoadConfig(config)} className="px-3 py-1 bg-green-800 hover:bg-green-700 rounded text-sm sm:text-base font-semibold">Charger</button>
-                                {config.source === 'local' && (
-                                    <button onClick={() => handleDeleteConfig(config.name)} className="text-brand-burgundy hover:text-red-400"><TrashIcon className="h-5 w-5"/></button>
-                                )}
-                            </div>
+       <div className="bg-brand-dark/50 rounded-lg border-2 border-brand-gold/50 shadow-lg">
+          <button type="button" onClick={() => toggleSection('bureau')} className="w-full flex justify-between items-center p-6 text-left">
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-brand-gold tracking-widest uppercase">Le Bureau</h2>
+              <ChevronDownIcon className={`h-8 w-8 text-brand-gold transition-transform duration-300 ${openSections.includes('bureau') ? 'rotate-180' : ''}`} />
+          </button>
+          {openSections.includes('bureau') && (
+            <div className="px-6 pb-6 animate-fade-in">
+              <div className="flex flex-wrap items-start gap-4 justify-end">
+                  <button onClick={handleExportConfig} className="flex items-center px-4 py-2 bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20 rounded-md font-semibold transition-colors text-sm sm:text-base">
+                      <DownloadIcon className="h-5 w-5 mr-2" /> Exporter la Config
+                  </button>
+                  <label className="flex items-center px-4 py-2 bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20 rounded-md font-semibold transition-colors cursor-pointer text-sm sm:text-base">
+                      <UploadIcon className="h-5 w-5 mr-2" /> Importer la Config
+                      <input type="file" accept=".json,.zip" className="hidden" ref={importFileRef} onChange={handleImportConfig}/>
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <label className={`flex items-center px-4 py-2 bg-blue-800 rounded-md font-semibold transition-colors text-sm sm:text-base text-white ${isAiMatching ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-700 cursor-pointer'}`}>
+                        <UploadIcon className="h-5 w-5 mr-2" /> Charger Audios en Masse
+                        <input type="file" accept="audio/*" multiple className="hidden" ref={bulkAudioFileRef} onChange={handleBulkAudioUpload} disabled={isAiMatching} />
+                    </label>
+                    {isAiMatching && (
+                        <div className="flex items-center gap-2 text-brand-light animate-fade-in">
+                            <SpinnerIcon className="h-6 w-6 text-brand-gold animate-spin" />
+                            <span className="font-semibold">{aiStatus}</span>
                         </div>
-                    ))}
+                    )}
+                  </div>
+                  <button onClick={handleClearAll} className="flex items-center px-4 py-2 bg-brand-dark/50 border border-brand-burgundy hover:bg-brand-burgundy rounded-md font-semibold transition-colors text-sm sm:text-base">
+                      <ClearIcon className="h-5 w-5 mr-2" /> Tout Effacer
+                  </button>
+              </div>
+              <div className="mt-6 border-t-2 border-brand-gold/30 pt-4">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 text-brand-light/80">Gestion des Configurations</h3>
+                
+                {/* --- SAVING --- */}
+                <div className="flex items-center gap-2 mb-4">
+                  <input type="text" value={newConfigName} onChange={e => setNewConfigName(e.target.value)} placeholder="Nommer et sauvegarder la config actuelle" className="flex-grow bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base"/>
+                  <button onClick={handleSaveConfig} className="flex items-center px-4 py-2 bg-brand-gold text-brand-dark hover:bg-brand-light rounded-md font-semibold transition-colors text-sm sm:text-base">
+                      <SaveIcon className="h-5 w-5 mr-2" /> Sauver
+                  </button>
                 </div>
-            ) : <p className="text-brand-light/50 text-base">Aucune configuration disponible.</p>}
-          </div>
+                
+                {/* --- LOADING --- */}
+                {availableConfigs.length > 0 ? (
+                    <div className="space-y-2">
+                        {availableConfigs.sort((a,b) => a.name.localeCompare(b.name)).map(config => (
+                            <div key={`${config.source}-${config.name}`} className="flex items-center justify-between bg-brand-dark/30 p-2 rounded-md border border-brand-gold/30">
+                                <span className="font-medium text-base sm:text-lg flex items-center">
+                                    {config.name}
+                                    {config.source === 'preconfigured' && <span title="Configuration pré-enregistrée" className="ml-2 text-xs bg-brand-burgundy text-white px-2 py-0.5 rounded-full">PRÉCONFIGURÉ</span>}
+                                    {config.source === 'local' && <span title="Sauvegardé dans votre navigateur" className="ml-2 text-xs bg-blue-800 text-white px-2 py-0.5 rounded-full">LOCAL</span>}
+                                </span>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => handleLoadConfig(config)} className="px-3 py-1 bg-green-800 hover:bg-green-700 rounded text-sm sm:text-base font-semibold">Charger</button>
+                                    {config.source === 'local' && (
+                                        <button onClick={() => handleDeleteConfig(config.name)} className="text-brand-burgundy hover:text-red-400"><TrashIcon className="h-5 w-5"/></button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : <p className="text-brand-light/50 text-base">Aucune configuration disponible.</p>}
+              </div>
+            </div>
+          )}
       </div>
       
       {/* Top Start Game Button */}
@@ -572,79 +641,104 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
 
 
       {/* Teams Setup */}
-      <div className="bg-brand-dark/50 p-6 rounded-lg border-2 border-brand-gold/50 shadow-lg">
-        <h2 className="font-display text-2xl sm:text-3xl font-bold mb-4 text-brand-gold tracking-widest uppercase">1. Les Concurrents</h2>
-        <div className="mb-4">
-          <label htmlFor="numTeams" className="block text-lg sm:text-xl font-medium text-brand-light/80">Nombre d'Équipes</label>
-          <input
-            type="number"
-            id="numTeams"
-            value={numTeams}
-            min="2"
-            onChange={handleNumTeamsChange}
-            className="mt-1 block w-24 bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition text-base"
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {teams.map((team, index) => (
-            <div key={index}>
-              <label htmlFor={`teamName-${index}`} className="block text-base font-medium text-brand-light/80">Nom de l'Équipe {index + 1}</label>
+      <div className="bg-brand-dark/50 rounded-lg border-2 border-brand-gold/50 shadow-lg">
+         <button type="button" onClick={() => toggleSection('concurrents')} className="w-full flex justify-between items-center p-6 text-left">
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-brand-gold tracking-widest uppercase">1. Les Concurrents</h2>
+            <ChevronDownIcon className={`h-8 w-8 text-brand-gold transition-transform duration-300 ${openSections.includes('concurrents') ? 'rotate-180' : ''}`} />
+        </button>
+        {openSections.includes('concurrents') && (
+          <div className="px-6 pb-6 animate-fade-in">
+            <div className="mb-4">
+              <label htmlFor="numTeams" className="block text-lg sm:text-xl font-medium text-brand-light/80">Nombre d'Équipes</label>
               <input
-                type="text"
-                id={`teamName-${index}`}
-                value={team.name || ''}
-                onChange={e => handleTeamNameChange(index, e.target.value)}
-                className="mt-1 block w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition text-base"
+                type="number"
+                id="numTeams"
+                value={numTeams}
+                min="2"
+                onChange={handleNumTeamsChange}
+                className="mt-1 block w-24 bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition text-base"
               />
             </div>
-          ))}
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {teams.map((team, index) => (
+                <div key={index}>
+                  <label htmlFor={`teamName-${index}`} className="block text-base font-medium text-brand-light/80">Nom de l'Équipe {index + 1}</label>
+                  <input
+                    type="text"
+                    id={`teamName-${index}`}
+                    value={team.name || ''}
+                    onChange={e => handleTeamNameChange(index, e.target.value)}
+                    className="mt-1 block w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition text-base"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Tie Breaker Rules */}
-      <div className="bg-brand-dark/50 p-6 rounded-lg border-2 border-brand-gold/50 shadow-lg">
-        <h2 className="font-display text-2xl sm:text-3xl font-bold mb-4 text-brand-gold tracking-widest uppercase">2. Règles du Jeu</h2>
-        <div>
-          <h3 className="text-lg sm:text-xl font-medium text-brand-light/80 mb-3">Gestion des Égalités</h3>
-          <div className="space-y-4">
-            <label className="flex items-start cursor-pointer">
-              <input type="radio" name="tiebreaker" value={TieBreakerRule.NONE} checked={tieBreakerRule === TieBreakerRule.NONE} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer mt-1"/>
-              <span className="ml-3 text-base text-brand-light/90">
-                Désactiver : les égalités sont autorisées.
-                <br />
-                <span className="text-sm text-brand-light/60">L'ordre des équipes à égalité sera déterminé au hasard.</span>
-              </span>
-            </label>
-            <label className="flex items-start cursor-pointer">
-              <input type="radio" name="tiebreaker" value={TieBreakerRule.ALL_TIES} checked={tieBreakerRule === TieBreakerRule.ALL_TIES} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer mt-1"/>
-              <span className="ml-3 text-base text-brand-light/90">Activer pour toutes les places : un défi départagera toutes les équipes à égalité.</span>
-            </label>
-            <label className="flex items-start cursor-pointer">
-              <input type="radio" name="tiebreaker" value={TieBreakerRule.FIRST_PLACE_ONLY} checked={tieBreakerRule === TieBreakerRule.FIRST_PLACE_ONLY} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer mt-1"/>
-              <span className="ml-3 text-base text-brand-light/90">
-                Activer uniquement pour la 1ère place : un défi ne départagera que les ex æquo pour la victoire.
-                 <br />
-                <span className="text-sm text-brand-light/60">Les autres égalités seront classées au hasard.</span>
-              </span>
-            </label>
-          </div>
-        </div>
-        <div className="mt-6">
-            <h3 className="text-lg sm:text-xl font-medium text-brand-light/80 mb-3">Condition de Victoire / Règles Spécifiques</h3>
-            <textarea
-                value={rules}
-                onChange={(e) => setRules(e.target.value)}
-                placeholder="Optionnel. Si rempli, un écran affichera ces règles au début de la partie."
-                className="w-full h-24 bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition text-base"
-            />
-        </div>
+      <div className="bg-brand-dark/50 rounded-lg border-2 border-brand-gold/50 shadow-lg">
+        <button type="button" onClick={() => toggleSection('regles')} className="w-full flex justify-between items-center p-6 text-left">
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-brand-gold tracking-widest uppercase">2. Règles du Jeu</h2>
+            <ChevronDownIcon className={`h-8 w-8 text-brand-gold transition-transform duration-300 ${openSections.includes('regles') ? 'rotate-180' : ''}`} />
+        </button>
+        {openSections.includes('regles') && (
+            <div className="px-6 pb-6 animate-fade-in">
+                <div>
+                  <h3 className="text-lg sm:text-xl font-medium text-brand-light/80 mb-3">Gestion des Égalités</h3>
+                  <div className="space-y-4">
+                    <label className="flex items-start cursor-pointer">
+                      <input type="radio" name="tiebreaker" value={TieBreakerRule.NONE} checked={tieBreakerRule === TieBreakerRule.NONE} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer mt-1"/>
+                      <span className="ml-3 text-base text-brand-light/90">
+                        Désactiver : les égalités sont autorisées.
+                        <br />
+                        <span className="text-sm text-brand-light/60">L'ordre des équipes à égalité sera déterminé au hasard.</span>
+                      </span>
+                    </label>
+                    <label className="flex items-start cursor-pointer">
+                      <input type="radio" name="tiebreaker" value={TieBreakerRule.ALL_TIES} checked={tieBreakerRule === TieBreakerRule.ALL_TIES} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer mt-1"/>
+                      <span className="ml-3 text-base text-brand-light/90">Activer pour toutes les places : un défi départagera toutes les équipes à égalité.</span>
+                    </label>
+                    <label className="flex items-start cursor-pointer">
+                      <input type="radio" name="tiebreaker" value={TieBreakerRule.FIRST_PLACE_ONLY} checked={tieBreakerRule === TieBreakerRule.FIRST_PLACE_ONLY} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer mt-1"/>
+                      <span className="ml-3 text-base text-brand-light/90">
+                        Activer uniquement pour la 1ère place : un défi ne départagera que les ex æquo pour la victoire.
+                         <br />
+                        <span className="text-sm text-brand-light/60">Les autres égalités seront classées au hasard.</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+                <div className="mt-6">
+                    <h3 className="text-lg sm:text-xl font-medium text-brand-light/80 mb-3">Condition de Victoire / Règles Spécifiques</h3>
+                    <textarea
+                        value={rules}
+                        onChange={(e) => setRules(e.target.value)}
+                        placeholder="Optionnel. Si rempli, un écran affichera ces règles au début de la partie."
+                        className="w-full h-24 bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition text-base"
+                    />
+                </div>
+            </div>
+        )}
       </div>
 
-      <RoundsSetup 
-        rounds={rounds}
-        setRounds={setRounds}
-        numTeams={numTeams}
-      />
+      <div className="bg-brand-dark/50 rounded-lg border-2 border-brand-gold/50 shadow-lg">
+          <button type="button" onClick={() => toggleSection('manches')} className="w-full flex justify-between items-center p-6 text-left">
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-brand-gold tracking-widest uppercase">3. Les Manches</h2>
+            <ChevronDownIcon className={`h-8 w-8 text-brand-gold transition-transform duration-300 ${openSections.includes('manches') ? 'rotate-180' : ''}`} />
+          </button>
+          {openSections.includes('manches') && (
+            <div className="px-6 pb-6 animate-fade-in">
+              <RoundsSetup 
+                rounds={rounds}
+                setRounds={setRounds}
+                numTeams={numTeams}
+              />
+            </div>
+          )}
+      </div>
+
 
       {/* Start Game */}
       <div className="flex flex-col items-center space-y-4 mt-8">
