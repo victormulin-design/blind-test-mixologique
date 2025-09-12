@@ -1,11 +1,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import type { Team, Round, Prize, Question, GameSettings } from '../types';
-import { QuestionType, TieBreakerRule } from '../types';
-import { PlusIcon, TrashIcon, UploadIcon, DownloadIcon, SaveIcon, FolderOpenIcon, ClearIcon } from './IconComponents';
-import AudioTrimmer from './AudioTrimmer';
-import { demoData } from './configurations';
+import { TieBreakerRule } from '../types';
+import { PlusIcon, TrashIcon, UploadIcon, DownloadIcon, SaveIcon, FolderOpenIcon, ClearIcon, SpinnerIcon } from './IconComponents';
 import { GoogleGenAI, Type } from "@google/genai";
+import RoundsSetup from './setup/RoundsSetup';
 
 
 interface SetupScreenProps {
@@ -61,6 +60,9 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
   
   const [availableConfigs, setAvailableConfigs] = useState<AvailableConfig[]>([]);
   const [newConfigName, setNewConfigName] = useState('');
+
+  const [isAiMatching, setIsAiMatching] = useState(false);
+  const [aiStatus, setAiStatus] = useState('');
 
 
   useEffect(() => {
@@ -129,109 +131,6 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
     setTeams(newTeams);
   };
   
-  const addRound = () => {
-    setRounds([
-        ...rounds, 
-        { 
-            name: '', 
-            questions: [],
-            prizePool: Array(numTeams).fill({ name: '', imageUrl: '' }),
-        }
-    ]);
-  };
-
-  const removeRound = (index: number) => {
-    setRounds(rounds.filter((_, i) => i !== index));
-  };
-  
-  const handleRoundChange = <K extends keyof Round>(index: number, field: K, value: Round[K]) => {
-      const newRounds = [...rounds];
-      newRounds[index] = { ...newRounds[index], [field]: value };
-      setRounds(newRounds);
-  };
-
-  const addQuestion = (roundIndex: number) => {
-    const newRounds = [...rounds];
-    const round = newRounds[roundIndex];
-    round.questions = [...(round.questions || []), { questionText: 'Devinez la chanson et l\'artiste', answer: '', type: QuestionType.AUDIO, points: 1 }];
-    setRounds(newRounds);
-  };
-
-  const removeQuestion = (roundIndex: number, questionIndex: number) => {
-    const newRounds = [...rounds];
-    const round = newRounds[roundIndex];
-    round.questions = round.questions?.filter((_, i) => i !== questionIndex);
-    setRounds(newRounds);
-  };
-
-  const handleQuestionChange = <K extends keyof Question>(roundIndex: number, questionIndex: number, field: K, value: Question[K]) => {
-    const newRounds = [...rounds];
-    const round = newRounds[roundIndex];
-    const newQuestions = [...(round.questions || [])];
-    
-    let processedValue = value;
-    if (field === 'timer' || field === 'points') {
-      const numValue = parseInt(value as string, 10);
-      processedValue = isNaN(numValue) || numValue <= 0 ? undefined : numValue as Question[K];
-    }
-
-    newQuestions[questionIndex] = { ...newQuestions[questionIndex], [field]: processedValue };
-    
-    if (field === 'splitAnswer' && value === true) {
-        newQuestions[questionIndex].points = 2;
-    }
-
-    round.questions = newQuestions;
-    setRounds(newRounds);
-  };
-
-  const handleQuestionTrimmerChange = (roundIndex: number, questionIndex: number, times: { start?: number, end?: number, answerStart?: number }) => {
-    const newRounds = [...rounds];
-    const round = newRounds[roundIndex];
-    const newQuestions = [...(round.questions || [])];
-    
-    newQuestions[questionIndex] = { 
-        ...newQuestions[questionIndex], 
-        audioStartTime: times.start, 
-        audioEndTime: times.end,
-        answerStartTime: times.answerStart,
-    };
-    round.questions = newQuestions;
-    setRounds(newRounds);
-  };
-
-  const handlePrizeChange = (roundIndex: number, prizeIndex: number, field: keyof Prize, value: string) => {
-    const newRounds = [...rounds];
-    const round = { ...newRounds[roundIndex] };
-    const prizePool = [...(round.prizePool || [])];
-    prizePool[prizeIndex] = { ...prizePool[prizeIndex], [field]: value };
-    round.prizePool = prizePool;
-    newRounds[roundIndex] = round;
-    setRounds(newRounds);
-  };
-
-  const handlePrizeImageUpload = async (roundIndex: number, prizeIndex: number, file: File | null) => {
-    if (!file) return;
-    const base64 = await fileToBase64(file);
-    handlePrizeChange(roundIndex, prizeIndex, 'imageUrl', base64);
-  };
-
-  const handleAudioUpload = async (roundIndex: number, questionIndex: number, file: File | null) => {
-    if (!file) return;
-
-    const currentAnswer = rounds[roundIndex]?.questions?.[questionIndex]?.answer;
-    if (!currentAnswer || currentAnswer.trim() === '') {
-        const fileName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-        const cleanAnswer = fileName.replace(/[_-]/g, ' ');
-        handleQuestionChange(roundIndex, questionIndex, 'answer', cleanAnswer);
-    }
-    
-    handleQuestionChange(roundIndex, questionIndex, 'audioFileName', file.name);
-
-    const base64 = await fileToBase64(file);
-    handleQuestionChange(roundIndex, questionIndex, 'audioUrl', base64);
-  };
-
   const handleSaveConfig = () => {
     if (!newConfigName.trim()) {
       showNotification('Veuillez entrer un nom pour la configuration.');
@@ -262,8 +161,6 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
                 throw new Error(`Le fichier ${configToLoad.file} est introuvable.`);
             }
             configData = await response.json();
-        } else if (configToLoad.name === 'Démo') { // Hardcoded fallback for demo
-            configData = demoData;
         }
 
         if (configData) {
@@ -366,7 +263,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
             return {
                 questionText: "Devinez la chanson et l'artiste",
                 answer,
-                type: QuestionType.AUDIO,
+                type: "AUDIO",
                 points: 1,
                 audioUrl,
                 audioFileName: file.name
@@ -374,25 +271,27 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
         });
 
         const resolvedQuestions = await Promise.all(questionPromises);
-        newRound.questions = resolvedQuestions;
+        newRound.questions = resolvedQuestions as Question[];
 
         setNumTeams(2);
         setTeams(newTeams);
         setRounds([newRound]);
         showNotification(`${files.length} audios importés et une manche créée !`);
     } else { // Mode B: Intelligently match audio to existing questions with AI
-        const currentNotification = 'Analyse des fichiers en cours...';
-        setNotification(currentNotification);
+        setIsAiMatching(true);
+        setAiStatus('Préparation des données...');
 
         try {
             if (!process.env.API_KEY) {
               alert("Erreur: La clé API Gemini n'est pas configurée. Impossible d'utiliser l'association intelligente.");
+              setIsAiMatching(false);
               return;
             }
+            setAiStatus('Analyse des fichiers en cours...');
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
             const newRounds = JSON.parse(JSON.stringify(rounds)) as Partial<Round>[];
-            const questionsToMatch: Question[] = newRounds.flatMap(r => r.questions || []).filter(q => q && q.type === QuestionType.AUDIO && !q.audioUrl && q.answer);
+            const questionsToMatch: Question[] = newRounds.flatMap(r => r.questions || []).filter(q => q && q.type === "AUDIO" && !q.audioUrl && q.answer);
 
             if (questionsToMatch.length === 0) {
                 showNotification("Aucune question audio sans fichier à assigner.");
@@ -402,6 +301,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
             const questionAnswers = questionsToMatch.map(q => q.answer);
             const fileNames = Array.from(files).map(f => f.name);
 
+            setAiStatus('Contact de l\'IA Gemini...');
             const prompt = `
               Associate each answer from the 'answers' list with the best-matching audio filename from the 'filenames' list.
               Prioritize matches that share key words from artists and song titles. Be accurate.
@@ -418,6 +318,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
               },
             });
 
+            setAiStatus('Traitement de la réponse de l\'IA...');
             const resultText = response.text.trim();
             const matches: { answer: string; filename: string | null }[] = JSON.parse(resultText);
 
@@ -427,12 +328,13 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
             // Use a unique key for each question to handle duplicate answers
             newRounds.forEach(r => {
                 (r.questions || []).forEach((q, i) => {
-                    if (q.type === QuestionType.AUDIO && !q.audioUrl && q.answer) {
+                    if (q.type === "AUDIO" && !q.audioUrl && q.answer) {
                         questionMap.set(`${q.answer}#${i}`, q);
                     }
                 });
             });
 
+            setAiStatus('Assignation des fichiers audio...');
             const fileConversionPromises: Promise<void>[] = [];
             
             for (const match of matches) {
@@ -472,9 +374,8 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
             console.error("Erreur lors de l'association par IA:", error);
             showNotification("Une erreur est survenue pendant l'association intelligente.");
         } finally {
-            if (notification === currentNotification) {
-                setNotification('');
-            }
+            setIsAiMatching(false);
+            setAiStatus('');
         }
     }
     event.target.value = ''; // Reset file input
@@ -588,112 +489,6 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
       onSetupComplete(finalTeams, finalRounds, settings);
   };
 
-  const renderQuestionInput = (roundIndex: number, questionIndex: number) => {
-      const question = rounds[roundIndex]?.questions?.[questionIndex];
-      if (!question) return null;
-
-      return (
-        <div className="bg-brand-dark/30 p-4 rounded-lg border border-brand-gold/30 space-y-3">
-            <div className='flex justify-between items-center'>
-                <h4 className="text-lg font-bold text-brand-light/80">Question {questionIndex + 1}</h4>
-                <button onClick={() => removeQuestion(roundIndex, questionIndex)} className="text-brand-burgundy hover:text-red-400">
-                    <TrashIcon className="h-5 w-5"/>
-                </button>
-            </div>
-             <input
-                type="text"
-                value={question.questionText}
-                onChange={(e) => handleQuestionChange(roundIndex, questionIndex, 'questionText', e.target.value)}
-                placeholder="Question (ex: 'Quelle est cette chanson ?')"
-                className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition text-base"
-            />
-             <input
-                type="text"
-                value={question.clue || ''}
-                onChange={(e) => handleQuestionChange(roundIndex, questionIndex, 'clue', e.target.value)}
-                placeholder="Indice (optionnel, caché pendant le jeu)"
-                className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition text-base"
-            />
-             <input
-                type="text"
-                value={question.answer}
-                onChange={(e) => handleQuestionChange(roundIndex, questionIndex, 'answer', e.target.value)}
-                placeholder="Réponse (pour votre référence)"
-                className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition text-base"
-            />
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <label className="block text-base font-medium text-brand-light/70">Points</label>
-                <input type="number" value={question.points || ''} min="1" onChange={e => handleQuestionChange(roundIndex, questionIndex, 'points', e.target.value as any)} placeholder="1" className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base disabled:bg-brand-dark/30 disabled:cursor-not-allowed" disabled={!!question.splitAnswer}/>
-              </div>
-              <div className="flex-1">
-                <label className="block text-base font-medium text-brand-light/70">Chrono (sec)</label>
-                <input type="number" value={question.timer || ''} min="1" onChange={e => handleQuestionChange(roundIndex, questionIndex, 'timer', e.target.value as any)} placeholder="Optionnel" className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base"/>
-              </div>
-            </div>
-            
-            {(question.type === QuestionType.AUDIO || question.type === QuestionType.LIVE) && (
-                <div className="flex items-center space-x-3 pt-2">
-                    <input
-                        type="checkbox"
-                        id={`split-${roundIndex}-${questionIndex}`}
-                        checked={!!question.splitAnswer}
-                        onChange={(e) => handleQuestionChange(roundIndex, questionIndex, 'splitAnswer', e.target.checked)}
-                        className="h-5 w-5 rounded border-brand-gold/70 bg-brand-dark/50 text-brand-gold focus:ring-2 focus:ring-brand-gold"
-                    />
-                    <label htmlFor={`split-${roundIndex}-${questionIndex}`} className="text-base font-medium text-brand-light/90">
-                        Séparer les points Artiste / Titre (1pt + 1pt)
-                    </label>
-                </div>
-            )}
-
-            <div className="flex space-x-2 pt-2">
-                {[QuestionType.LIVE, QuestionType.AUDIO].map(type => (
-                    <button
-                        key={type}
-                        onClick={() => handleQuestionChange(roundIndex, questionIndex, 'type', type)}
-                        className={`px-3 py-1 rounded-md text-sm font-semibold transition-colors uppercase tracking-wider ${question.type === type ? 'bg-brand-gold text-brand-dark' : 'bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20'}`}
-                    >
-                        {type === 'LIVE' ? 'Prestation Live' : type}
-                    </button>
-                ))}
-            </div>
-            {question.type === QuestionType.AUDIO && (
-                <div className="mt-2">
-                    <label className="block text-base font-medium text-brand-light/90 mb-1">Charger un fichier audio</label>
-                    <input type="file" accept="audio/*" onChange={e => handleAudioUpload(roundIndex, questionIndex, e.target.files?.[0] || null)} className="text-base file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-brand-light file:text-brand-dark hover:file:bg-brand-gold"/>
-                    {question.audioFileName && (
-                        <div className="flex items-center justify-between mt-2 p-2 bg-brand-dark/20 rounded-md border border-brand-gold/20">
-                            <span className="text-brand-light/80 text-sm truncate" title={question.audioFileName}>
-                                {question.audioFileName}
-                            </span>
-                            <button 
-                                onClick={() => {
-                                    handleQuestionChange(roundIndex, questionIndex, 'audioUrl', undefined);
-                                    handleQuestionChange(roundIndex, questionIndex, 'audioFileName', undefined);
-                                    handleQuestionTrimmerChange(roundIndex, questionIndex, { start: undefined, end: undefined, answerStart: undefined });
-                                }} 
-                                className="text-brand-burgundy hover:text-red-400 ml-2"
-                                aria-label="Supprimer le fichier audio"
-                            >
-                                <TrashIcon className="h-5 w-5" />
-                            </button>
-                        </div>
-                    )}
-                    {question.audioUrl && (
-                      <AudioTrimmer
-                        src={question.audioUrl}
-                        startTime={question.audioStartTime}
-                        endTime={question.audioEndTime}
-                        answerStartTime={question.answerStartTime}
-                        onTimesChange={(times) => handleQuestionTrimmerChange(roundIndex, questionIndex, times)}
-                      />
-                    )}
-                </div>
-            )}
-        </div>
-      )
-  }
 
   return (
     <div className="space-y-12 animate-slide-in-up">
@@ -706,7 +501,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
       {/* Config Management */}
        <div className="bg-brand-dark/50 p-6 rounded-lg border-2 border-brand-gold/50 shadow-lg">
           <h2 className="font-display text-2xl sm:text-3xl font-bold mb-4 text-brand-gold tracking-widest uppercase">Le Bureau</h2>
-           <div className="flex flex-wrap items-start gap-4">
+           <div className="flex flex-wrap items-start gap-4 justify-end">
               <button onClick={handleExportConfig} className="flex items-center px-4 py-2 bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20 rounded-md font-semibold transition-colors text-sm sm:text-base">
                   <DownloadIcon className="h-5 w-5 mr-2" /> Exporter la Config
               </button>
@@ -714,10 +509,18 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
                   <UploadIcon className="h-5 w-5 mr-2" /> Importer la Config
                   <input type="file" accept=".json" className="hidden" ref={importFileRef} onChange={handleImportConfig}/>
               </label>
-              <label className="flex items-center px-4 py-2 bg-blue-800 hover:bg-blue-700 rounded-md font-semibold transition-colors cursor-pointer text-sm sm:text-base text-white">
-                  <UploadIcon className="h-5 w-5 mr-2" /> Charger Audios en Masse
-                  <input type="file" accept="audio/*" multiple className="hidden" ref={bulkAudioFileRef} onChange={handleBulkAudioUpload}/>
-              </label>
+              <div className="flex items-center gap-4">
+                <label className={`flex items-center px-4 py-2 bg-blue-800 rounded-md font-semibold transition-colors text-sm sm:text-base text-white ${isAiMatching ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-700 cursor-pointer'}`}>
+                    <UploadIcon className="h-5 w-5 mr-2" /> Charger Audios en Masse
+                    <input type="file" accept="audio/*" multiple className="hidden" ref={bulkAudioFileRef} onChange={handleBulkAudioUpload} disabled={isAiMatching} />
+                </label>
+                {isAiMatching && (
+                    <div className="flex items-center gap-2 text-brand-light animate-fade-in">
+                        <SpinnerIcon className="h-6 w-6 text-brand-gold animate-spin" />
+                        <span className="font-semibold">{aiStatus}</span>
+                    </div>
+                )}
+              </div>
                <button onClick={handleClearAll} className="flex items-center px-4 py-2 bg-brand-dark/50 border border-brand-burgundy hover:bg-brand-burgundy rounded-md font-semibold transition-colors text-sm sm:text-base">
                   <ClearIcon className="h-5 w-5 mr-2" /> Tout Effacer
               </button>
@@ -837,81 +640,11 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
         </div>
       </div>
 
-      {/* Rounds Setup */}
-      <div className="bg-brand-dark/50 p-6 rounded-lg border-2 border-brand-gold/50 shadow-lg">
-        <div className="flex justify-between items-center mb-4">
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-brand-gold tracking-widest uppercase">3. Les Manches</h2>
-            <button onClick={addRound} className="flex items-center px-4 py-2 bg-brand-burgundy hover:bg-brand-burgundy-dark rounded-md text-white font-semibold transition-colors duration-200 text-sm sm:text-base">
-                <PlusIcon className="h-5 w-5 mr-2"/>
-                Ajouter une Manche
-            </button>
-        </div>
-        <div className="space-y-6">
-            {rounds.map((round, roundIndex) => (
-                <div key={roundIndex} className="bg-brand-dark/40 p-4 rounded-lg border-2 border-brand-gold/30">
-                    <div className="flex justify-between items-center mb-2">
-                        <input
-                            type="text"
-                            value={round.name || ''}
-                            onChange={e => handleRoundChange(roundIndex, 'name', e.target.value)}
-                            placeholder={`Nom de la Manche ${roundIndex + 1}`}
-                            className="font-display text-xl sm:text-2xl font-semibold text-brand-gold/90 bg-transparent border-0 border-b-2 border-brand-gold/50 focus:ring-0 focus:border-brand-gold w-full tracking-wider"
-                        />
-                        <button onClick={() => removeRound(roundIndex)} className="ml-4 text-brand-burgundy hover:text-red-400">
-                            <TrashIcon className="h-6 w-6"/>
-                        </button>
-                    </div>
-                     <input
-                        type="text"
-                        value={round.prizeCategory || ''}
-                        onChange={e => handleRoundChange(roundIndex, 'prizeCategory', e.target.value)}
-                        placeholder="Catégorie d'ingrédient (optionnel, ex: Alcools)"
-                        className="text-base text-brand-light/80 bg-transparent border-0 border-b border-brand-gold/40 focus:ring-0 focus:border-brand-gold w-full mb-4"
-                    />
-
-                    <div className="space-y-4 my-4">
-                        {round.questions?.map((_, questionIndex) => renderQuestionInput(roundIndex, questionIndex))}
-                    </div>
-
-                    <button onClick={() => addQuestion(roundIndex)} className="flex items-center text-sm sm:text-base px-3 py-1 bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20 rounded-md text-white font-semibold transition-colors duration-200">
-                        <PlusIcon className="h-4 w-4 mr-1"/>
-                        Ajouter une Question
-                    </button>
-
-                    <div className="border-t border-brand-gold/30 my-6 mx-4"></div>
-
-                    <h4 className="text-lg sm:text-xl font-medium mb-2 text-brand-light/80">Ingrédients à gagner pour cette manche</h4>
-                    <p className="text-brand-light/60 mb-4 text-sm">Le classement déterminera l'ordre de sélection. Le nombre d'ingrédients doit correspondre au nombre d'équipes.</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {(round.prizePool || []).map((prize, prizeIndex) => {
-                            return (
-                                <div key={prizeIndex} className="bg-brand-dark/50 p-3 rounded-md space-y-2 border border-brand-gold/30">
-                                    <label className="block text-base font-semibold text-brand-light/70">Ingrédient {prizeIndex + 1}</label>
-                                    <input
-                                        type="text"
-                                        value={prize.name}
-                                        onChange={(e) => handlePrizeChange(roundIndex, prizeIndex, 'name', e.target.value)}
-                                        placeholder="Nom de l'ingrédient"
-                                        className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base"
-                                    />
-                                    <div className="flex items-center space-x-3 min-h-[80px]">
-                                        <div className="flex items-center gap-2">
-                                            <label htmlFor={`prize-img-${roundIndex}-${prizeIndex}`} className="cursor-pointer flex items-center px-3 py-2 bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20 rounded-md text-sm">
-                                                <UploadIcon className="h-4 w-4 mr-2" />
-                                                Charger
-                                            </label>
-                                        </div>
-                                        <input id={`prize-img-${roundIndex}-${prizeIndex}`} type="file" accept="image/*" className="hidden" onChange={(e) => handlePrizeImageUpload(roundIndex, prizeIndex, e.target.files?.[0] || null)} />
-                                        {prize.imageUrl && <img src={prize.imageUrl} alt={prize.name} className="h-20 w-20 object-contain" style={{ maskImage: 'radial-gradient(circle, white 50%, transparent 75%)' }} />}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            ))}
-        </div>
-      </div>
+      <RoundsSetup 
+        rounds={rounds}
+        setRounds={setRounds}
+        numTeams={numTeams}
+      />
 
       {/* Start Game */}
       <div className="flex flex-col items-center space-y-4 mt-8">
