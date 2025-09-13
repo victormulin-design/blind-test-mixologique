@@ -28,7 +28,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onLoadGame }) =>
     <div className="flex flex-col items-center animate-slide-in-up max-w-6xl text-center p-6 bg-brand-dark/50 border-2 border-brand-gold rounded-xl backdrop-blur-sm shadow-[0_0_20px_#D4AF37]">
       <LogoIcon className="h-28 w-28 text-brand-gold" />
       <h2 className="mt-8 font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-wider uppercase text-brand-light" style={{textShadow: '0 0 10px #D4AF37'}}>
-        Soirée Blind Test
+        Le Mix parfait
       </h2>
       <p className="mt-6 max-w-2xl font-body text-lg sm:text-xl md:text-2xl text-brand-light/80">
         Participez à la plus grande soirée quiz du siècle. Testez vos connaissances, surpassez vos rivaux et concoctez le cocktail de la victoire.
