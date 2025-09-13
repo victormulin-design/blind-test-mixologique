@@ -18,7 +18,6 @@ export interface Team {
 }
 
 export interface Prize {
-  // FIX: Made the 'id' property optional to allow for creation during setup without an ID.
   id?: string;
   name: string;
   imageUrl: string;

@@ -1,6 +1,7 @@
+
 import React, { useMemo } from 'react';
 import type { Team, Prize } from '../../types';
-import { CocktailIcon } from '../IconComponents';
+import { CocktailIcon, TrophyIcon } from '../IconComponents';
 import CelebrationAnimation from './CelebrationAnimation';
 
 interface FinalSummaryDisplayProps {
@@ -24,15 +25,19 @@ const FinalSummaryDisplay: React.FC<FinalSummaryDisplayProps> = ({ teams }) => {
                 {rankedTeams.map((team, index) => (
                     <div 
                         key={team.id} 
-                        className={`p-4 [&[data-screen-profile=small]]:p-2 rounded-lg transition-all duration-500 ${index === 0 ? 'bg-brand-gold/20 border-2 border-brand-gold shadow-lg' : 'bg-brand-dark/80 border border-brand-gold/60'}`}
+                        className={`p-4 [&[data-screen-profile=small]]:p-2 rounded-lg transition-all duration-500 ${index === 0 ? 'bg-brand-gold/20 border-2 border-brand-gold shadow-lg animate-glow' : 'bg-brand-dark/80 border border-brand-gold/60'}`}
                         style={{ animation: 'slideInUp 0.5s ease-out forwards', animationDelay: `${index * 150}ms`, opacity: 0 }}
                     >
-                        <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left">
-                            <div>
+                        <div className="flex w-full items-baseline justify-between gap-x-4">
+                            <div className="flex flex-1 items-baseline gap-x-3 min-w-0">
                                 <p className="text-xl sm:text-2xl [&[data-screen-profile=small]]:text-lg font-bold text-brand-light/60">#{index + 1}</p>
-                                <p className={`text-lg sm:text-xl [&[data-screen-profile=small]]:text-base font-extrabold ${index === 0 ? 'text-brand-gold' : 'text-brand-light'}`}>{team.name}</p>
+                                <p className={`text-2xl sm:text-3xl [&[data-screen-profile=small]]:text-xl font-extrabold truncate ${index === 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-orange-500' : 'text-brand-light'}`} title={team.name}>
+                                    {team.name}
+                                </p>
                             </div>
-                            <p className={`text-2xl sm:text-3xl [&[data-screen-profile=small]]:text-xl font-bold ${index === 0 ? 'text-brand-gold' : 'text-brand-light/80'} mt-1 sm:mt-0`}>{Math.round(getTeamTotalScore(team))} pts</p>
+                            <p className={`flex-shrink-0 text-2xl sm:text-3xl [&[data-screen-profile=small]]:text-xl font-bold ${index === 0 ? 'text-brand-gold' : 'text-brand-light/80'}`}>
+                                {Math.round(getTeamTotalScore(team))} pts
+                            </p>
                         </div>
 
                         <div className="mt-3 border-t pt-3 border-brand-gold/30">
@@ -47,7 +52,6 @@ const FinalSummaryDisplay: React.FC<FinalSummaryDisplayProps> = ({ teams }) => {
                             </div>
                         </div>
 
-                        {index === 0 && <p className="mt-3 font-display text-lg sm:text-xl [&[data-screen-profile=small]]:text-base font-bold text-brand-gold tracking-widest">GAGNANT !</p>}
                     </div>
                 ))}
             </div>

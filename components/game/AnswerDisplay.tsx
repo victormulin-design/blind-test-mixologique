@@ -40,7 +40,7 @@ const AnswerDisplay: React.FC<AnswerDisplayProps> = ({ question, onNext, isLastQ
     }, [correctAwards]);
     
     return (
-        <div className="bg-brand-dark/80 backdrop-blur-md p-4 sm:p-6 [&[data-screen-profile=small]]:p-2 rounded-b-xl shadow-2xl border-2 border-t-0 border-brand-gold/50 w-full max-w-7xl animate-fade-in text-center flex flex-col min-h-[550px] [&[data-screen-profile=small]]:min-h-0">
+        <div className="bg-brand-dark/80 backdrop-blur-md p-4 sm:p-6 [&[data-screen-profile=small]]:p-2 rounded-b-xl shadow-2xl border-2 border-t-0 border-brand-gold/50 w-full max-w-screen-2xl animate-fade-in text-center flex flex-col min-h-[550px] [&[data-screen-profile=small]]:min-h-0">
             <div className="flex-grow flex flex-col justify-center">
                 <p className="text-lg sm:text-2xl [&[data-screen-profile=small]]:text-base text-brand-light/70 font-display tracking-wider">{question.questionText}</p>
                 
@@ -55,7 +55,7 @@ const AnswerDisplay: React.FC<AnswerDisplayProps> = ({ question, onNext, isLastQ
                 </p>
             </div>
             
-            <div className="flex-shrink-0 h-[120px] [&[data-screen-profile=small]]:h-[80px] flex items-center justify-center">
+            <div className="flex-shrink-0 h-[100px] [&[data-screen-profile=small]]:h-[80px] flex items-center justify-center">
                 {question.type === 'AUDIO' && question.audioUrl && 
                     <CustomAudioPlayer src={question.audioUrl} startTime={question.answerStartTime} />
                 }

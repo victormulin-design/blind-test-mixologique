@@ -68,9 +68,26 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> =
         }
         return null;
     }
+    
+    const numTeams = teams.length;
+    const getTeamButtonClasses = () => {
+        const base = "py-3 bg-transparent border-2 border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-dark rounded-lg font-bold text-base sm:text-lg text-center transition-all duration-200 transform hover:scale-105 shadow-md break-words [&[data-screen-profile=small]]:px-3 [&[data-screen-profile=small]]:py-2 [&[data-screen-profile=small]]:text-sm [&[data-screen-profile=small]]:min-w-0";
+        if (numTeams >= 5 && numTeams <= 6) {
+            return `${base} flex-1 px-4 min-w-[150px]`;
+        }
+        return `${base} px-5 min-w-[160px]`;
+    };
+
+    const getSplitTeamBoxClasses = () => {
+        const base = "bg-brand-dark/50 p-1 rounded-xl border border-brand-gold/50 text-center flex flex-col";
+        if (numTeams >= 5 && numTeams <= 6) {
+            return `${base} flex-1 min-w-[180px]`;
+        }
+        return `${base} w-48 [&[data-screen-profile=small]]:w-48`;
+    }
 
     return (
-        <div className="bg-brand-dark/80 backdrop-blur-md p-4 sm:p-6 [&[data-screen-profile=small]]:p-2 rounded-b-xl shadow-2xl border-2 border-t-0 border-brand-gold/50 w-full max-w-7xl animate-fade-in text-center flex flex-col min-h-[550px] [&[data-screen-profile=small]]:min-h-0">
+        <div className="bg-brand-dark/80 backdrop-blur-md p-4 sm:p-6 [&[data-screen-profile=small]]:p-2 rounded-b-xl shadow-2xl border-2 border-t-0 border-brand-gold/50 w-full max-w-screen-2xl animate-fade-in text-center flex flex-col min-h-[550px] [&[data-screen-profile=small]]:min-h-0">
             <div className="flex justify-between items-start">
                 <div className="text-left">
                     {renderPointsBanner()}
@@ -80,13 +97,13 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> =
                 </div>
             </div>
 
-            <div className="flex-grow flex flex-col justify-center my-4">
+            <div className="flex-grow flex flex-col justify-center my-2">
                 { timeLeft !== undefined &&
                     <div className={`text-4xl sm:text-5xl [&[data-screen-profile=small]]:text-3xl font-bold my-2 font-display ${timeLeft <= 5 && timeLeft > 0 ? 'text-red-500 animate-pulse' : 'text-brand-light'}`}>
                         {timeLeft}
                     </div>
                 }
-                <p className="font-display text-3xl sm:text-4xl lg:text-5xl [&[data-screen-profile=small]]:text-2xl mt-4 text-brand-light font-light tracking-wide">{question.questionText}</p>
+                <p className="grow-0 font-display text-3xl sm:text-4xl lg:text-5xl [&[data-screen-profile=small]]:text-2xl mt-2 text-brand-light font-light tracking-wide">{question.questionText}</p>
 
                 { question.clue && (
                     <div className="mt-4">
@@ -101,7 +118,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> =
                 )}
             </div>
             
-            <div className="flex-shrink-0 h-[120px] [&[data-screen-profile=small]]:h-[80px] flex items-center justify-center">
+            <div className="flex-shrink-0 h-[100px] [&[data-screen-profile=small]]:h-[80px] flex items-center justify-center">
                  {question.type === 'AUDIO' ? 
                     (question.audioUrl ? <CustomAudioPlayer src={question.audioUrl} startTime={question.audioStartTime} endTime={question.audioEndTime} /> : <p>Aucun fichier audio.</p>)
                     : <p className="font-display text-2xl text-brand-burgundy italic font-semibold text-center tracking-widest">PRESTATION LIVE !</p>
@@ -111,13 +128,18 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> =
             <div className="mt-4 flex-shrink-0">
                 {!question.splitAnswer ? (
                      <div>
-                        <h3 className="font-display text-xl sm:text-2xl [&[data-screen-profile=small]]:text-lg font-semibold mb-3 text-brand-light/90 tracking-wider">Qui a répondu correctement ?</h3>
-                        <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+                        <h3 className="font-display text-base sm:text-sm [&[data-screen-profile=small]]:text-lg font-semibold mb-3 text-brand-light/90 tracking-wider">Qui a répondu correctement ?</h3>
+                        <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
                             {teams.map(team => (
-                                <button key={team.id} onClick={() => handleTeamClick(team.id)} className="px-5 py-3 bg-transparent border-2 border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-dark rounded-lg font-bold text-base sm:text-lg text-center transition-all duration-200 transform hover:scale-105 shadow-md min-w-[160px] [&[data-screen-profile=small]]:px-3 [&[data-screen-profile=small]]:py-2 [&[data-screen-profile=small]]:text-sm [&[data-screen-profile=small]]:min-w-0 break-words">
+                                <button key={team.id} onClick={() => handleTeamClick(team.id)} className={getTeamButtonClasses()}>
                                     {team.name}
                                 </button>
                             ))}
+                        </div>
+                        <div className="text-center mt-4">
+                            <button onClick={() => onAwards([])} className="text-brand-light/70 hover:text-brand-light underline transition-colors text-sm sm:text-base [&[data-screen-profile=small]]:text-xs">
+                                Personne n'a trouvé ? Révéler la réponse
+                            </button>
                         </div>
                     </div>
                 ) : (
@@ -125,20 +147,20 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> =
                         <h3 className="font-display text-xl sm:text-2xl [&[data-screen-profile=small]]:text-lg font-semibold mb-3 text-brand-light/90 tracking-wider">Qui a répondu correctement ?</h3>
                         <div className="flex flex-wrap justify-center gap-4">
                             {teams.map(team => (
-                                <div key={team.id} className="bg-brand-dark/50 p-1 rounded-xl border border-brand-gold/50 text-center w-64 [&[data-screen-profile=small]]:w-48 flex flex-col">
+                                <div key={team.id} className={getSplitTeamBoxClasses()}>
                                     <p className="text-base sm:text-lg [&[data-screen-profile=small]]:text-base font-bold text-brand-light mb-2 truncate" title={team.name}>
                                         {team.name}
                                     </p>
-                                    <div className="flex justify-center gap-2">
+                                    <div className="flex justify-center gap-1">
                                         <button 
                                             onClick={() => setArtistAward(prev => prev === team.id ? null : team.id)}
-                                            className={`flex-1 px-2 py-1 rounded-lg font-semibold text-sm sm:text-base transition-colors duration-200 transform hover:scale-105 ${artistAward === team.id ? 'bg-brand-gold text-brand-dark' : 'bg-transparent border border-brand-gold/70 text-brand-gold hover:bg-brand-gold/20'}`}
+                                            className={`flex-1 px-1 py-1 rounded-lg font-semibold text-xs sm:text-xs transition-colors duration-200 transform hover:scale-105 ${artistAward === team.id ? 'bg-brand-gold text-brand-dark' : 'bg-transparent border border-brand-gold/70 text-brand-gold hover:bg-brand-gold/20'}`}
                                         >
                                             Artiste
                                         </button>
                                         <button 
                                             onClick={() => setTitleAward(prev => prev === team.id ? null : team.id)}
-                                            className={`flex-1 px-2 py-1 rounded-lg font-semibold text-sm sm:text-base transition-colors duration-200 transform hover:scale-105 ${titleAward === team.id ? 'bg-brand-gold text-brand-dark' : 'bg-transparent border border-brand-gold/70 text-brand-gold hover:bg-brand-gold/20'}`}
+                                            className={`flex-1 px-1 py-1 rounded-lg font-semibold text-xs sm:text-xs transition-colors duration-200 transform hover:scale-105 ${titleAward === team.id ? 'bg-brand-gold text-brand-dark' : 'bg-transparent border border-brand-gold/70 text-brand-gold hover:bg-brand-gold/20'}`}
                                         >
                                             Titre
                                         </button>
@@ -154,6 +176,11 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> =
                             >
                                 Valider & Révéler
                             </button>
+                            <div className="text-center mt-4">
+                                <button onClick={() => onAwards([])} className="text-brand-light/70 hover:text-brand-light underline transition-colors text-sm sm:text-base [&[data-screen-profile=small]]:text-xs">
+                                    Personne n'a trouvé ? Révéler la réponse
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}

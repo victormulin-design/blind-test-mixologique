@@ -107,7 +107,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
   const [isAiMatching, setIsAiMatching] = useState(false);
   const [aiStatus, setAiStatus] = useState('');
   
-  const [openSections, setOpenSections] = useState<string[]>(['bureau', 'concurrents', 'regles', 'manches']);
+  const [openSections, setOpenSections] = useState<string[]>(['gestion', 'concurrents', 'regles', 'manches']);
 
   const toggleSection = (section: string) => {
       setOpenSections(prev => 
@@ -553,7 +553,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
 
 
   return (
-    <div className="space-y-12 animate-slide-in-up">
+    <div className="space-y-6 animate-slide-in-up">
       {notification && (
         <div className="fixed top-5 right-5 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in z-50 text-lg">
           {notification}
@@ -562,78 +562,95 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
 
       {/* Config Management */}
        <div className="bg-brand-dark/50 rounded-lg border-2 border-brand-gold/50 shadow-lg">
-          <button type="button" onClick={() => toggleSection('bureau')} className="w-full flex justify-between items-center p-6 text-left">
-              <h2 className="font-display text-2xl sm:text-3xl font-bold text-brand-gold tracking-widest uppercase">Le Bureau</h2>
-              <ChevronDownIcon className={`h-8 w-8 text-brand-gold transition-transform duration-300 ${openSections.includes('bureau') ? 'rotate-180' : ''}`} />
+          <button type="button" onClick={() => toggleSection('gestion')} className="w-full flex justify-between items-center p-4 sm:p-5 text-left">
+              <h2 className="font-display text-xl sm:text-2xl font-bold text-brand-gold tracking-widest uppercase">Gestion de la Partie</h2>
+              <ChevronDownIcon className={`h-8 w-8 text-brand-gold transition-transform duration-300 ${openSections.includes('gestion') ? 'rotate-180' : ''}`} />
           </button>
-          {openSections.includes('bureau') && (
-            <div className="px-6 pb-6 animate-fade-in">
-              <div className="flex flex-wrap items-start gap-4 justify-end">
-                  <button onClick={handleExportConfig} className="flex items-center px-4 py-2 bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20 rounded-md font-semibold transition-colors text-sm sm:text-base">
-                      <DownloadIcon className="h-5 w-5 mr-2" /> Exporter la Config
-                  </button>
-                  <label className="flex items-center px-4 py-2 bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20 rounded-md font-semibold transition-colors cursor-pointer text-sm sm:text-base">
-                      <UploadIcon className="h-5 w-5 mr-2" /> Importer la Config
-                      <input type="file" accept=".json,.zip" className="hidden" ref={importFileRef} onChange={handleImportConfig}/>
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <label className={`flex items-center px-4 py-2 bg-blue-800 rounded-md font-semibold transition-colors text-sm sm:text-base text-white ${isAiMatching ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-700 cursor-pointer'}`}>
-                        <UploadIcon className="h-5 w-5 mr-2" /> Charger Audios en Masse
-                        <input type="file" accept="audio/*" multiple className="hidden" ref={bulkAudioFileRef} onChange={handleBulkAudioUpload} disabled={isAiMatching} />
-                    </label>
-                    {isAiMatching && (
-                        <div className="flex items-center gap-2 text-brand-light animate-fade-in">
-                            <SpinnerIcon className="h-6 w-6 text-brand-gold animate-spin" />
-                            <span className="font-semibold">{aiStatus}</span>
-                        </div>
-                    )}
-                  </div>
-                  <button onClick={handleClearAll} className="flex items-center px-4 py-2 bg-brand-dark/50 border border-brand-burgundy hover:bg-brand-burgundy rounded-md font-semibold transition-colors text-sm sm:text-base">
-                      <ClearIcon className="h-5 w-5 mr-2" /> Tout Effacer
-                  </button>
-              </div>
-              <div className="mt-6 border-t-2 border-brand-gold/30 pt-4">
-                <h3 className="text-lg sm:text-xl font-semibold mb-2 text-brand-light/80">Gestion des Configurations</h3>
-                
-                {/* --- SAVING --- */}
-                <div className="flex items-center gap-2 mb-4">
-                  <input type="text" value={newConfigName} onChange={e => setNewConfigName(e.target.value)} placeholder="Nommer et sauvegarder la config actuelle" className="flex-grow bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base"/>
-                  <button onClick={handleSaveConfig} className="flex items-center px-4 py-2 bg-brand-gold text-brand-dark hover:bg-brand-light rounded-md font-semibold transition-colors text-sm sm:text-base">
-                      <SaveIcon className="h-5 w-5 mr-2" /> Sauver
-                  </button>
-                </div>
-                
-                {/* --- LOADING --- */}
+          {openSections.includes('gestion') && (
+            <div className="px-4 sm:px-6 pb-6 animate-fade-in space-y-6">
+              
+               <div className="border-b-2 border-brand-gold/30 pb-6">
+                <h3 className="text-lg sm:text-xl font-semibold mb-3 text-brand-light/80">Charger une configuration</h3>
                 {availableConfigs.length > 0 ? (
-                    <div className="space-y-2">
+                    <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
                         {availableConfigs.sort((a,b) => a.name.localeCompare(b.name)).map(config => (
                             <div key={`${config.source}-${config.name}`} className="flex items-center justify-between bg-brand-dark/30 p-2 rounded-md border border-brand-gold/30">
-                                <span className="font-medium text-base sm:text-lg flex items-center">
-                                    {config.name}
-                                    {config.source === 'preconfigured' && <span title="Configuration pré-enregistrée" className="ml-2 text-xs bg-brand-burgundy text-white px-2 py-0.5 rounded-full">PRÉCONFIGURÉ</span>}
-                                    {config.source === 'local' && <span title="Sauvegardé dans votre navigateur" className="ml-2 text-xs bg-blue-800 text-white px-2 py-0.5 rounded-full">LOCAL</span>}
+                                <span className="font-medium text-base sm:text-lg flex items-center gap-2">
+                                    {config.source === 'preconfigured' && <span title="Configuration pré-enregistrée" className="text-xs bg-brand-burgundy text-white px-2 py-0.5 rounded-full flex-shrink-0">PRÉ</span>}
+                                    {config.source === 'local' && <span title="Sauvegardé dans votre navigateur" className="text-xs bg-blue-800 text-white px-2 py-0.5 rounded-full flex-shrink-0">LOC</span>}
+                                    <span className="truncate" title={config.name}>{config.name}</span>
                                 </span>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 flex-shrink-0">
                                     <button onClick={() => handleLoadConfig(config)} className="px-3 py-1 bg-green-800 hover:bg-green-700 rounded text-sm sm:text-base font-semibold">Charger</button>
                                     {config.source === 'local' && (
-                                        <button onClick={() => handleDeleteConfig(config.name)} className="text-brand-burgundy hover:text-red-400"><TrashIcon className="h-5 w-5"/></button>
+                                        <button onClick={() => handleDeleteConfig(config.name)} className="text-brand-burgundy hover:text-red-400" aria-label={`Supprimer ${config.name}`}><TrashIcon className="h-5 w-5"/></button>
                                     )}
                                 </div>
                             </div>
                         ))}
                     </div>
-                ) : <p className="text-brand-light/50 text-base">Aucune configuration disponible.</p>}
+                ) : <p className="text-center text-brand-light/50 text-base p-4 bg-brand-dark/20 rounded-md">Aucune configuration disponible.</p>}
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* Left Side: Save/File management */}
+                <div className="space-y-4">
+                  <h3 className="text-lg sm:text-xl font-semibold text-brand-light/80 border-b-2 border-brand-gold/30 pb-2">Sauvegarde & Fichiers</h3>
+                  
+                  <div className="flex items-center gap-2">
+                    <input type="text" value={newConfigName} onChange={e => setNewConfigName(e.target.value)} placeholder="Nommer la config actuelle..." className="flex-grow bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base"/>
+                    <button onClick={handleSaveConfig} className="flex items-center px-4 py-2 bg-brand-gold text-brand-dark hover:bg-brand-light rounded-md font-semibold transition-colors text-sm sm:text-base">
+                        <SaveIcon className="h-5 w-5 mr-2" /> Sauver
+                    </button>
+                  </div>
+
+                  <div className="flex flex-wrap items-start gap-3 justify-center pt-2">
+                    <button onClick={handleExportConfig} className="flex-1 flex items-center justify-center px-4 py-2 bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20 rounded-md font-semibold transition-colors text-sm sm:text-base">
+                        <DownloadIcon className="h-5 w-5 mr-2" /> Exporter
+                    </button>
+                    <label className="flex-1 flex items-center justify-center px-4 py-2 bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20 rounded-md font-semibold transition-colors cursor-pointer text-sm sm:text-base">
+                        <UploadIcon className="h-5 w-5 mr-2" /> Importer
+                        <input type="file" accept=".json,.zip" className="hidden" ref={importFileRef} onChange={handleImportConfig}/>
+                    </label>
+                    <button onClick={handleClearAll} className="flex-1 flex items-center justify-center px-4 py-2 bg-brand-dark/50 border border-brand-burgundy hover:bg-brand-burgundy rounded-md font-semibold transition-colors text-sm sm:text-base">
+                        <ClearIcon className="h-5 w-5 mr-2" /> Tout Effacer
+                    </button>
+                  </div>
+                </div>
+
+                {/* Right Side: Bulk/AI Actions */}
+                <div className="space-y-4">
+                  <h3 className="text-lg sm:text-xl font-semibold text-brand-light/80 border-b-2 border-brand-gold/30 pb-2">Actions Avancées</h3>
+                   <label className={`flex items-center justify-center text-center p-4 bg-blue-800 rounded-lg font-semibold transition-colors text-white ${isAiMatching ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-700 cursor-pointer'}`}>
+                        <div>
+                           <div className="flex items-center justify-center">
+                              <UploadIcon className="h-3 w-3 mr-2" />
+                              <span className="text-lg">Charger des Audios en Masse</span>
+                            </div>
+                           <p className="text-sm font-normal mt-1">Crée un nouveau jeu ou associe intelligemment les fichiers aux questions existantes.</p>
+                        </div>
+                        <input type="file" accept="audio/*" multiple className="hidden" ref={bulkAudioFileRef} onChange={handleBulkAudioUpload} disabled={isAiMatching} />
+                    </label>
+                    {isAiMatching && (
+                        <div className="flex items-center justify-center gap-2 text-brand-light animate-fade-in p-2 bg-brand-dark/50 rounded-md">
+                            <SpinnerIcon className="h-6 w-6 text-brand-gold animate-spin" />
+                            <span className="font-semibold">{aiStatus}</span>
+                        </div>
+                    )}
+                </div>
+
               </div>
             </div>
           )}
       </div>
       
-      {/* Top Start Game Button */}
-      <div className="flex flex-col items-center space-y-4 -mt-4">
-        {error && <p className="text-red-400 mb-4 text-base sm:text-lg">{error}</p>}
+      {/* Start Button */}
+      <div className="flex flex-col items-center space-y-4 py-2">
+        {error && <p className="text-red-400 mb-4 text-base sm:text-lg text-center">{error}</p>}
         <button 
             onClick={validateAndStart}
-            className="font-display px-8 py-3 sm:px-12 sm:py-4 bg-brand-gold text-brand-dark hover:bg-brand-light rounded-lg font-bold text-xl sm:text-2xl tracking-widest uppercase transition-all duration-300 transform hover:scale-105 shadow-lg animate-glow"
+            className="font-display px-8 py-3 sm:px-10 sm:py-3 bg-brand-gold text-brand-dark hover:bg-brand-light rounded-lg font-bold text-lg sm:text-xl tracking-widest uppercase transition-all duration-300 transform hover:scale-105 shadow-lg animate-glow"
         >
             Que la partie commence !
         </button>
@@ -642,13 +659,13 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
 
       {/* Teams Setup */}
       <div className="bg-brand-dark/50 rounded-lg border-2 border-brand-gold/50 shadow-lg">
-         <button type="button" onClick={() => toggleSection('concurrents')} className="w-full flex justify-between items-center p-6 text-left">
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-brand-gold tracking-widest uppercase">1. Les Concurrents</h2>
+         <button type="button" onClick={() => toggleSection('concurrents')} className="w-full flex justify-between items-center p-4 sm:p-5 text-left">
+            <h2 className="font-display text-xl sm:text-2xl font-bold text-brand-gold tracking-widest uppercase">1. Les Concurrents</h2>
             <ChevronDownIcon className={`h-8 w-8 text-brand-gold transition-transform duration-300 ${openSections.includes('concurrents') ? 'rotate-180' : ''}`} />
         </button>
         {openSections.includes('concurrents') && (
-          <div className="px-6 pb-6 animate-fade-in">
-            <div className="mb-4">
+          <div className="px-4 sm:px-6 pb-6 animate-fade-in">
+            <div className="mb-6">
               <label htmlFor="numTeams" className="block text-lg sm:text-xl font-medium text-brand-light/80">Nombre d'Équipes</label>
               <input
                 type="number"
@@ -659,7 +676,7 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
                 className="mt-1 block w-24 bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition text-base"
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {teams.map((team, index) => (
                 <div key={index}>
                   <label htmlFor={`teamName-${index}`} className="block text-base font-medium text-brand-light/80">Nom de l'Équipe {index + 1}</label>
@@ -679,31 +696,31 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
       
       {/* Tie Breaker Rules */}
       <div className="bg-brand-dark/50 rounded-lg border-2 border-brand-gold/50 shadow-lg">
-        <button type="button" onClick={() => toggleSection('regles')} className="w-full flex justify-between items-center p-6 text-left">
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-brand-gold tracking-widest uppercase">2. Règles du Jeu</h2>
+        <button type="button" onClick={() => toggleSection('regles')} className="w-full flex justify-between items-center p-4 sm:p-5 text-left">
+            <h2 className="font-display text-xl sm:text-2xl font-bold text-brand-gold tracking-widest uppercase">2. Règles du Jeu</h2>
             <ChevronDownIcon className={`h-8 w-8 text-brand-gold transition-transform duration-300 ${openSections.includes('regles') ? 'rotate-180' : ''}`} />
         </button>
         {openSections.includes('regles') && (
-            <div className="px-6 pb-6 animate-fade-in">
+            <div className="px-4 sm:px-6 pb-6 animate-fade-in">
                 <div>
                   <h3 className="text-lg sm:text-xl font-medium text-brand-light/80 mb-3">Gestion des Égalités</h3>
                   <div className="space-y-4">
-                    <label className="flex items-start cursor-pointer">
+                    <label className="flex items-start p-3 rounded-lg cursor-pointer transition-colors hover:bg-brand-dark/50">
                       <input type="radio" name="tiebreaker" value={TieBreakerRule.NONE} checked={tieBreakerRule === TieBreakerRule.NONE} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer mt-1"/>
                       <span className="ml-3 text-base text-brand-light/90">
-                        Désactiver : les égalités sont autorisées.
+                        <span className="font-semibold">Désactiver :</span> les égalités sont autorisées.
                         <br />
                         <span className="text-sm text-brand-light/60">L'ordre des équipes à égalité sera déterminé au hasard.</span>
                       </span>
                     </label>
-                    <label className="flex items-start cursor-pointer">
+                    <label className="flex items-start p-3 rounded-lg cursor-pointer transition-colors hover:bg-brand-dark/50">
                       <input type="radio" name="tiebreaker" value={TieBreakerRule.ALL_TIES} checked={tieBreakerRule === TieBreakerRule.ALL_TIES} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer mt-1"/>
-                      <span className="ml-3 text-base text-brand-light/90">Activer pour toutes les places : un défi départagera toutes les équipes à égalité.</span>
+                      <span className="ml-3 text-base text-brand-light/90"><span className="font-semibold">Activer pour toutes les places :</span> un défi départagera toutes les équipes à égalité.</span>
                     </label>
-                    <label className="flex items-start cursor-pointer">
+                    <label className="flex items-start p-3 rounded-lg cursor-pointer transition-colors hover:bg-brand-dark/50">
                       <input type="radio" name="tiebreaker" value={TieBreakerRule.FIRST_PLACE_ONLY} checked={tieBreakerRule === TieBreakerRule.FIRST_PLACE_ONLY} onChange={(e) => setTieBreakerRule(e.target.value as TieBreakerRule)} className="h-5 w-5 bg-brand-dark border-brand-gold/70 text-brand-gold focus:ring-brand-gold focus:ring-2 cursor-pointer mt-1"/>
                       <span className="ml-3 text-base text-brand-light/90">
-                        Activer uniquement pour la 1ère place : un défi ne départagera que les ex æquo pour la victoire.
+                        <span className="font-semibold">Activer uniquement pour la 1ère place :</span> un défi ne départagera que les ex æquo pour la victoire.
                          <br />
                         <span className="text-sm text-brand-light/60">Les autres égalités seront classées au hasard.</span>
                       </span>
@@ -724,12 +741,12 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
       </div>
 
       <div className="bg-brand-dark/50 rounded-lg border-2 border-brand-gold/50 shadow-lg">
-          <button type="button" onClick={() => toggleSection('manches')} className="w-full flex justify-between items-center p-6 text-left">
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-brand-gold tracking-widest uppercase">3. Les Manches</h2>
+          <button type="button" onClick={() => toggleSection('manches')} className="w-full flex justify-between items-center p-4 sm:p-5 text-left">
+            <h2 className="font-display text-xl sm:text-2xl font-bold text-brand-gold tracking-widest uppercase">3. Les Manches</h2>
             <ChevronDownIcon className={`h-8 w-8 text-brand-gold transition-transform duration-300 ${openSections.includes('manches') ? 'rotate-180' : ''}`} />
           </button>
           {openSections.includes('manches') && (
-            <div className="px-6 pb-6 animate-fade-in">
+            <div className="px-4 sm:px-6 pb-6 animate-fade-in">
               <RoundsSetup 
                 rounds={rounds}
                 setRounds={setRounds}
@@ -741,13 +758,13 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
 
 
       {/* Start Game */}
-      <div className="flex flex-col items-center space-y-4 mt-8">
-        {error && <p className="text-red-400 mb-4 text-base sm:text-lg">{error}</p>}
+      <div className="flex flex-col items-center space-y-4 mt-6">
+        {error && <p className="text-red-400 mb-4 text-base sm:text-lg text-center">{error}</p>}
         <div className="flex items-center flex-wrap justify-center gap-4">
             <button
                 onClick={() => handleExportAnswers('txt')}
                 disabled={rounds.length === 0}
-                className="flex items-center px-4 py-2 sm:px-6 sm:py-3 bg-transparent border-2 border-brand-gold/80 text-brand-light hover:bg-brand-gold hover:text-brand-dark rounded-lg font-bold text-lg sm:text-xl transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+                className="flex items-center px-4 py-2 sm:px-6 sm:py-2 bg-transparent border-2 border-brand-gold/80 text-brand-light hover:bg-brand-gold hover:text-brand-dark rounded-lg font-bold text-lg sm:text-xl transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
             >
                 <DownloadIcon className="h-6 w-6 mr-2"/>
                 Réponses (TXT)
@@ -755,14 +772,14 @@ const SetupScreen: React.FC<SetupScreenProps> = ({ onSetupComplete }) => {
             <button
                 onClick={() => handleExportAnswers('csv')}
                 disabled={rounds.length === 0}
-                className="flex items-center px-4 py-2 sm:px-6 sm:py-3 bg-transparent border-2 border-brand-gold/80 text-brand-light hover:bg-brand-gold hover:text-brand-dark rounded-lg font-bold text-lg sm:text-xl transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+                className="flex items-center px-4 py-2 sm:px-6 sm:py-2 bg-transparent border-2 border-brand-gold/80 text-brand-light hover:bg-brand-gold hover:text-brand-dark rounded-lg font-bold text-lg sm:text-xl transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
             >
                 <DownloadIcon className="h-6 w-6 mr-2"/>
                 Réponses (CSV)
             </button>
             <button 
                 onClick={validateAndStart}
-                className="font-display px-8 py-3 sm:px-12 sm:py-4 bg-brand-gold text-brand-dark hover:bg-brand-light rounded-lg font-bold text-xl sm:text-2xl tracking-widest uppercase transition-all duration-300 transform hover:scale-105 shadow-lg animate-glow"
+                className="font-display px-8 py-3 sm:px-10 sm:py-3 bg-brand-gold text-brand-dark hover:bg-brand-light rounded-lg font-bold text-lg sm:text-xl tracking-widest uppercase transition-all duration-300 transform hover:scale-105 shadow-lg animate-glow"
             >
                 Que la partie commence !
             </button>

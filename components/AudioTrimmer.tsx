@@ -52,7 +52,8 @@ const AudioTrimmer: React.FC<AudioTrimmerProps> = ({ src, startTime, endTime, an
     }, [isLooping]);
 
     const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
-      let timeout: NodeJS.Timeout | null = null;
+      // FIX: Use ReturnType<typeof setTimeout> for browser compatibility instead of NodeJS.Timeout
+      let timeout: ReturnType<typeof setTimeout> | null = null;
       const debounced = (...args: Parameters<F>) => {
         if (timeout !== null) {
           clearTimeout(timeout);

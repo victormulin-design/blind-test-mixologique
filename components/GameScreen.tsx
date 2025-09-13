@@ -70,6 +70,13 @@ const findTie = (
     return null;
 };
 
+// Layout Wrappers
+const CenteredView: React.FC<{children: React.ReactNode}> = ({ children }) => (
+    <div className="flex-grow w-full flex flex-col justify-center items-center">
+        {children}
+    </div>
+);
+
 
 // ===== MAIN GAME SCREEN COMPONENT =====
 const GameScreen: React.FC<GameScreenProps> = ({ initialTeams, initialRounds, settings }) => {
@@ -191,16 +198,16 @@ const GameScreen: React.FC<GameScreenProps> = ({ initialTeams, initialRounds, se
   
   const renderContent = () => {
     if (!rulesShown && settings.rules) {
-      return <RulesDisplay rules={settings.rules} onAcknowledge={() => setRulesShown(true)} />;
+      return <CenteredView><RulesDisplay rules={settings.rules} onAcknowledge={() => setRulesShown(true)} /></CenteredView>;
     }
     
     if (isGameOver) {
       const sortedByTotal = [...teams].sort((a, b) => getTotalScore(b) - getTotalScore(a));
       const finalTie = findTie(sortedByTotal, getTotalScore);
       if (shouldCheckForTie(finalTie, settings.tieBreakerRule)) {
-          return <TieBreakerDisplay teams={finalTie.teams} message={`Égalité pour la ${finalTie.rank}e place !`} onResolve={(winnerId) => resolveTie(winnerId, 'final')} />;
+          return <CenteredView><TieBreakerDisplay teams={finalTie.teams} message={`Égalité pour la ${finalTie.rank}e place !`} onResolve={(winnerId) => resolveTie(winnerId, 'final')} /></CenteredView>;
       }
-      return <FinalSummaryDisplay teams={teams} />;
+      return <CenteredView><FinalSummaryDisplay teams={teams} /></CenteredView>;
     }
 
     if (!currentRound) return <p>Chargement...</p>;
@@ -209,51 +216,50 @@ const GameScreen: React.FC<GameScreenProps> = ({ initialTeams, initialRounds, se
         const sortedByRound = [...teams].sort((a, b) => getRoundScore(b) - getRoundScore(a));
         const roundTie = findTie(sortedByRound, getRoundScore);
         if (shouldCheckForTie(roundTie, settings.tieBreakerRule)) {
-            return <TieBreakerDisplay teams={roundTie.teams} message={`Égalité pour la ${roundTie.rank}e place !`} onResolve={(winnerId) => resolveTie(winnerId, 'round')} />;
+            return <CenteredView><TieBreakerDisplay teams={roundTie.teams} message={`Égalité pour la ${roundTie.rank}e place !`} onResolve={(winnerId) => resolveTie(winnerId, 'round')} /></CenteredView>;
         }
-        return <RoundSummaryDisplay round={currentRound} teams={teams} onConfirmPrizes={handleConfirmPrizes} onBack={handleBackToAnswer} />;
+        return <CenteredView><RoundSummaryDisplay round={currentRound} teams={teams} onConfirmPrizes={handleConfirmPrizes} onBack={handleBackToAnswer} /></CenteredView>;
     }
 
     // Default question/answer views
     return (
-      <>
-        <RoundHeader round={currentRound} />
-        {view === 'QUESTION' && currentQuestion && (
-          <QuestionDisplay
-            question={currentQuestion}
-            round={currentRound}
-            questionNumber={currentQuestionIndex + 1}
-            totalQuestions={currentRound.questions.length}
-            teams={teams}
-            onAwards={handleAwards}
-          />
-        )}
-        {view === 'ANSWER' && currentQuestion && (
-            <AnswerDisplay 
-                question={currentQuestion} 
-                onNext={proceedToNextQuestion}
-                isLastQuestion={currentQuestionIndex === currentRound.questions.length - 1}
-                onUndo={handleUndo}
-                canUndo={answerHistory.length > 0}
-                correctAwards={
-                    lastCorrectAwards?.map(award => ({
-                      part: award.part,
-                      teamName: teams.find(t => t.id === award.teamId)?.name || '?'
-                    })) || []
-                }
-            />
-        )}
-      </>
+      <CenteredView>
+        <div className="w-full flex flex-col items-center">
+            <RoundHeader round={currentRound} />
+            {view === 'QUESTION' && currentQuestion && (
+              <QuestionDisplay
+                question={currentQuestion}
+                round={currentRound}
+                questionNumber={currentQuestionIndex + 1}
+                totalQuestions={currentRound.questions.length}
+                teams={teams}
+                onAwards={handleAwards}
+              />
+            )}
+            {view === 'ANSWER' && currentQuestion && (
+                <AnswerDisplay 
+                    question={currentQuestion} 
+                    onNext={proceedToNextQuestion}
+                    isLastQuestion={currentQuestionIndex === currentRound.questions.length - 1}
+                    onUndo={handleUndo}
+                    canUndo={answerHistory.length > 0}
+                    correctAwards={
+                        lastCorrectAwards?.map(award => ({
+                          part: award.part,
+                          teamName: teams.find(t => t.id === award.teamId)?.name || '?'
+                        })) || []
+                    }
+                />
+            )}
+        </div>
+      </CenteredView>
     );
   };
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-start p-2 sm:p-4 gap-4">
+    <div className="w-full flex-grow flex flex-col p-2 sm:p-4 gap-4">
       {!isGameOver && currentRound && <HorizontalScoreboard teams={teams} currentRound={currentRound} />}
-      
-      <div className="flex-grow flex flex-col items-center justify-center w-full">
-         {renderContent()}
-      </div>
+      {renderContent()}
     </div>
   );
 };

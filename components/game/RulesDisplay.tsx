@@ -6,9 +6,9 @@ interface RulesDisplayProps {
 }
 
 const RulesDisplay: React.FC<RulesDisplayProps> = ({ rules, onAcknowledge }) => (
-  <div className="bg-brand-dark/80 backdrop-blur-md p-4 sm:p-6 rounded-xl shadow-2xl border-2 border-brand-gold/80 w-full max-w-4xl animate-fade-in text-center">
+  <div className="bg-brand-dark/80 backdrop-blur-md p-4 sm:p-6 rounded-xl shadow-2xl border-2 border-brand-gold/80 w-full max-w-6xl animate-fade-in text-center">
     <h2 className="font-display text-3xl sm:text-4xl [&[data-screen-profile=small]]:text-2xl font-bold text-brand-gold tracking-widest uppercase">Règles du Jeu</h2>
-    <p className="whitespace-pre-wrap text-lg sm:text-xl [&[data-screen-profile=small]]:text-base my-6 text-brand-light/90 text-center">
+    <p className="whitespace-pre-wrap text-3xl sm:text-3xl [&[data-screen-profile=small]]:text-3xl my-6 text-brand-light/90 text-center">
       {rules}
     </p>
     <button

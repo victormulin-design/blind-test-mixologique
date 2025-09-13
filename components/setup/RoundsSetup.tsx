@@ -1,9 +1,9 @@
 
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { Round, Question, Prize } from '../../types';
 import { QuestionType } from '../../types';
-import { PlusIcon, TrashIcon, UploadIcon } from '../IconComponents';
+import { PlusIcon, TrashIcon, UploadIcon, SpinnerIcon } from '../IconComponents';
 import AudioTrimmer from '../AudioTrimmer';
 
 interface RoundsSetupProps {
@@ -21,7 +21,131 @@ const fileToBase64 = (file: File): Promise<string> => {
   });
 };
 
+// Utility function to convert an AudioBuffer to a WAV file (Blob)
+const audioBufferToWavBlob = (buffer: AudioBuffer): Blob => {
+    const numOfChan = buffer.numberOfChannels;
+    const length = buffer.length * numOfChan * 2 + 44;
+    const bufferArray = new ArrayBuffer(length);
+    const view = new DataView(bufferArray);
+    const channels = [];
+    let i, sample;
+    let offset = 0;
+    let pos = 0;
+
+    // write WAVE header
+    setUint32(0x46464952); // "RIFF"
+    setUint32(length - 8); // file length - 8
+    setUint32(0x45564157); // "WAVE"
+
+    setUint32(0x20746d66); // "fmt " chunk
+    setUint32(16); // length = 16
+    setUint16(1); // PCM (uncompressed)
+    setUint16(numOfChan);
+    setUint32(buffer.sampleRate);
+    setUint32(buffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
+    setUint16(numOfChan * 2); // block-align
+    setUint16(16); // 16-bit
+
+    setUint32(0x61746164); // "data" - chunk
+    setUint32(length - pos - 4); // chunk length
+
+    function setUint16(data: number) {
+        view.setUint16(pos, data, true);
+        pos += 2;
+    }
+
+    function setUint32(data: number) {
+        view.setUint32(pos, data, true);
+        pos += 4;
+    }
+
+    // write interleaved data
+    for (i = 0; i < numOfChan; i++) {
+        channels.push(buffer.getChannelData(i));
+    }
+
+    while (pos < length) {
+        for (i = 0; i < numOfChan; i++) {
+            sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
+            sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0; // scale to 16-bit signed int
+            view.setInt16(pos, sample, true); // write 16-bit sample
+            pos += 2;
+        }
+        offset++;
+    }
+
+    return new Blob([view], { type: "audio/wav" });
+};
+
+
+const normalizeAudio = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const reader = new FileReader();
+
+        reader.onload = async (e) => {
+            if (!e.target?.result) {
+              console.warn("Failed to read file, falling back.");
+              resolve(fileToBase64(file)); // Fallback
+              return;
+            }
+            try {
+                const decodedData = await audioContext.decodeAudioData(e.target.result as ArrayBuffer);
+                
+                let max = 0;
+                for (let c = 0; c < decodedData.numberOfChannels; c++) {
+                    const channelData = decodedData.getChannelData(c);
+                    for (let i = 0; i < channelData.length; i++) {
+                        max = Math.max(max, Math.abs(channelData[i]));
+                    }
+                }
+
+                if (max === 0) { // Audio is silent
+                  resolve(fileToBase64(file));
+                  return;
+                }
+                
+                // Use a slight margin to avoid potential clipping
+                const gain = 0.98 / max;
+
+                const offlineContext = new OfflineAudioContext(decodedData.numberOfChannels, decodedData.length, decodedData.sampleRate);
+                const source = offlineContext.createBufferSource();
+                source.buffer = decodedData;
+
+                const gainNode = offlineContext.createGain();
+                gainNode.gain.value = gain;
+
+                source.connect(gainNode);
+                gainNode.connect(offlineContext.destination);
+                source.start(0);
+
+                const renderedBuffer = await offlineContext.startRendering();
+                const wavBlob = audioBufferToWavBlob(renderedBuffer);
+
+                const normalizedReader = new FileReader();
+                normalizedReader.onload = () => resolve(normalizedReader.result as string);
+                normalizedReader.onerror = (err) => {
+                  console.warn("Error reading normalized blob, falling back.", err);
+                  resolve(fileToBase64(file));
+                };
+                normalizedReader.readAsDataURL(wavBlob);
+
+            } catch (err) {
+                console.error("Error processing audio, falling back to original:", err);
+                resolve(fileToBase64(file)); // Fallback to original file if normalization fails
+            }
+        };
+        reader.onerror = (err) => {
+          console.warn("Error reading file for normalization, falling back.", err);
+          resolve(fileToBase64(file)); // Fallback
+        };
+        reader.readAsArrayBuffer(file);
+    });
+};
+
+
 const RoundsSetup: React.FC<RoundsSetupProps> = ({ rounds, setRounds, numTeams }) => {
+    const [processingAudio, setProcessingAudio] = useState<Record<string, boolean>>({});
 
     const addRound = () => {
         setRounds(prev => [
@@ -112,26 +236,43 @@ const RoundsSetup: React.FC<RoundsSetupProps> = ({ rounds, setRounds, numTeams }
 
     const handleAudioUpload = async (roundIndex: number, questionIndex: number, file: File | null) => {
         if (!file) return;
-
-        const currentAnswer = rounds[roundIndex]?.questions?.[questionIndex]?.answer;
-        if (!currentAnswer || currentAnswer.trim() === '') {
-            const fileName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-            const cleanAnswer = fileName.replace(/[_-]/g, ' ');
-            handleQuestionChange(roundIndex, questionIndex, 'answer', cleanAnswer);
-        }
         
-        handleQuestionChange(roundIndex, questionIndex, 'audioFileName', file.name);
+        const processingKey = `${roundIndex}-${questionIndex}`;
+        setProcessingAudio(prev => ({ ...prev, [processingKey]: true }));
+        
+        try {
+            const currentAnswer = rounds[roundIndex]?.questions?.[questionIndex]?.answer;
+            if (!currentAnswer || currentAnswer.trim() === '') {
+                const fileName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                const cleanAnswer = fileName.replace(/[_-]/g, ' ');
+                handleQuestionChange(roundIndex, questionIndex, 'answer', cleanAnswer);
+            }
+            
+            handleQuestionChange(roundIndex, questionIndex, 'audioFileName', file.name);
 
-        const base64 = await fileToBase64(file);
-        handleQuestionChange(roundIndex, questionIndex, 'audioUrl', base64);
+            const normalizedBase64 = await normalizeAudio(file);
+            handleQuestionChange(roundIndex, questionIndex, 'audioUrl', normalizedBase64);
+
+        } catch (error) {
+            console.error("Failed to normalize and upload audio, falling back:", error);
+            const base64 = await fileToBase64(file); // Fallback to non-normalized
+            handleQuestionChange(roundIndex, questionIndex, 'audioUrl', base64);
+        } finally {
+             setProcessingAudio(prev => {
+                const newState = { ...prev };
+                delete newState[processingKey];
+                return newState;
+            });
+        }
     };
 
     const renderQuestionInput = (roundIndex: number, questionIndex: number) => {
       const question = rounds[roundIndex]?.questions?.[questionIndex];
       if (!question) return null;
+      const isProcessing = processingAudio[`${roundIndex}-${questionIndex}`];
 
       return (
-        <div className="bg-brand-dark/30 p-4 rounded-lg border border-brand-gold/30 space-y-3">
+        <div className="bg-brand-dark/30 p-3 rounded-lg border-2 border-brand-gold/30 space-y-3 shadow-inner">
             <div className='flex justify-between items-center'>
                 <h4 className="text-lg font-bold text-brand-light/80">Question {questionIndex + 1}</h4>
                 <button onClick={() => removeQuestion(roundIndex, questionIndex)} className="text-brand-burgundy hover:text-red-400">
@@ -159,19 +300,19 @@ const RoundsSetup: React.FC<RoundsSetupProps> = ({ rounds, setRounds, numTeams }
                 placeholder="Réponse (pour votre référence)"
                 className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition text-base"
             />
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <label className="block text-base font-medium text-brand-light/70">Points</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex items-center space-x-3">
+                <label className="text-base font-medium text-brand-light/70 flex-shrink-0">Points</label>
                 <input type="number" value={question.points || ''} min="1" onChange={e => handleQuestionChange(roundIndex, questionIndex, 'points', e.target.value as any)} placeholder="1" className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base disabled:bg-brand-dark/30 disabled:cursor-not-allowed" disabled={!!question.splitAnswer}/>
               </div>
-              <div className="flex-1">
-                <label className="block text-base font-medium text-brand-light/70">Chrono (sec)</label>
-                <input type="number" value={question.timer || ''} min="1" onChange={e => handleQuestionChange(roundIndex, questionIndex, 'timer', e.target.value as any)} placeholder="Optionnel" className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base"/>
+              <div className="flex items-center space-x-3">
+                <label className="text-base font-medium text-brand-light/70 flex-shrink-0">Chrono</label>
+                <input type="number" value={question.timer || ''} min="1" onChange={e => handleQuestionChange(roundIndex, questionIndex, 'timer', e.target.value as any)} placeholder="Aucun" className="w-full bg-brand-dark/50 border border-brand-gold/70 rounded-md p-2 text-base"/>
               </div>
             </div>
             
             {(question.type === QuestionType.AUDIO || question.type === QuestionType.LIVE) && (
-                <div className="flex items-center space-x-3 pt-2">
+                <div className="flex items-center space-x-3 pt-1">
                     <input
                         type="checkbox"
                         id={`split-${roundIndex}-${questionIndex}`}
@@ -180,12 +321,12 @@ const RoundsSetup: React.FC<RoundsSetupProps> = ({ rounds, setRounds, numTeams }
                         className="h-5 w-5 rounded border-brand-gold/70 bg-brand-dark/50 text-brand-gold focus:ring-2 focus:ring-brand-gold"
                     />
                     <label htmlFor={`split-${roundIndex}-${questionIndex}`} className="text-base font-medium text-brand-light/90">
-                        Séparer les points Artiste / Titre (1pt + 1pt)
+                        Séparer Artiste / Titre (1pt + 1pt)
                     </label>
                 </div>
             )}
 
-            <div className="flex space-x-2 pt-2">
+            <div className="flex space-x-2 pt-1">
                 {[QuestionType.LIVE, QuestionType.AUDIO].map(type => (
                     <button
                         key={type}
@@ -198,34 +339,50 @@ const RoundsSetup: React.FC<RoundsSetupProps> = ({ rounds, setRounds, numTeams }
             </div>
             {question.type === QuestionType.AUDIO && (
                 <div className="mt-2">
-                    <label className="block text-base font-medium text-brand-light/90 mb-1">Charger un fichier audio</label>
-                    <input type="file" accept="audio/*" onChange={e => handleAudioUpload(roundIndex, questionIndex, e.target.files?.[0] || null)} className="text-base file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-brand-light file:text-brand-dark hover:file:bg-brand-gold"/>
-                    {question.audioFileName && (
-                        <div className="flex items-center justify-between mt-2 p-2 bg-brand-dark/20 rounded-md border border-brand-gold/20">
-                            <span className="text-brand-light/80 text-sm truncate" title={question.audioFileName}>
-                                {question.audioFileName}
-                            </span>
-                            <button 
-                                onClick={() => {
-                                    handleQuestionChange(roundIndex, questionIndex, 'audioUrl', undefined);
-                                    handleQuestionChange(roundIndex, questionIndex, 'audioFileName', undefined);
-                                    handleQuestionTrimmerChange(roundIndex, questionIndex, { start: undefined, end: undefined, answerStart: undefined });
-                                }} 
-                                className="text-brand-burgundy hover:text-red-400 ml-2"
-                                aria-label="Supprimer le fichier audio"
-                            >
-                                <TrashIcon className="h-5 w-5" />
-                            </button>
+                    <label className="block text-base font-medium text-brand-light/90 mb-1">Fichier audio</label>
+                     {isProcessing ? (
+                        <div className="flex items-center gap-2 text-brand-light/80 p-2 bg-brand-dark/20 rounded-md">
+                            <SpinnerIcon className="animate-spin h-5 w-5" />
+                            <span>Normalisation en cours...</span>
                         </div>
-                    )}
-                    {question.audioUrl && (
-                      <AudioTrimmer
-                        src={question.audioUrl}
-                        startTime={question.audioStartTime}
-                        endTime={question.audioEndTime}
-                        answerStartTime={question.answerStartTime}
-                        onTimesChange={(times) => handleQuestionTrimmerChange(roundIndex, questionIndex, times)}
-                      />
+                    ) : (
+                      <>
+                        <input type="file" accept="audio/*" onChange={e => handleAudioUpload(roundIndex, questionIndex, e.target.files?.[0] || null)} className="text-sm file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-brand-light file:text-brand-dark hover:file:bg-brand-gold"/>
+                        {question.audioFileName && !question.audioUrl && (
+                             <div className="flex items-center justify-between mt-2 p-2 bg-brand-dark/20 rounded-md border border-red-500/50">
+                                <span className="text-red-400/80 text-sm truncate" title={question.audioFileName}>
+                                    Fichier manquant : {question.audioFileName}
+                                </span>
+                            </div>
+                        )}
+                        {question.audioFileName && question.audioUrl && (
+                            <div className="flex items-center justify-between mt-2 p-2 bg-brand-dark/20 rounded-md border border-brand-gold/20">
+                                <span className="text-brand-light/80 text-sm truncate" title={question.audioFileName}>
+                                    {question.audioFileName}
+                                </span>
+                                <button 
+                                    onClick={() => {
+                                        handleQuestionChange(roundIndex, questionIndex, 'audioUrl', undefined);
+                                        handleQuestionChange(roundIndex, questionIndex, 'audioFileName', undefined);
+                                        handleQuestionTrimmerChange(roundIndex, questionIndex, { start: undefined, end: undefined, answerStart: undefined });
+                                    }} 
+                                    className="text-brand-burgundy hover:text-red-400 ml-2"
+                                    aria-label="Supprimer le fichier audio"
+                                >
+                                    <TrashIcon className="h-5 w-5" />
+                                </button>
+                            </div>
+                        )}
+                        {question.audioUrl && (
+                          <AudioTrimmer
+                            src={question.audioUrl}
+                            startTime={question.audioStartTime}
+                            endTime={question.audioEndTime}
+                            answerStartTime={question.answerStartTime}
+                            onTimesChange={(times) => handleQuestionTrimmerChange(roundIndex, questionIndex, times)}
+                          />
+                        )}
+                      </>
                     )}
                 </div>
             )}
@@ -235,9 +392,8 @@ const RoundsSetup: React.FC<RoundsSetupProps> = ({ rounds, setRounds, numTeams }
 
 
     return (
-        <div className="bg-brand-dark/50 p-6 rounded-lg border-2 border-brand-gold/50 shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="font-display text-2xl sm:text-3xl font-bold text-brand-gold tracking-widest uppercase">3. Les Manches</h2>
+        <div className="space-y-6">
+            <div className="flex justify-end">
                 <button onClick={addRound} className="flex items-center px-4 py-2 bg-brand-burgundy hover:bg-brand-burgundy-dark rounded-md text-white font-semibold transition-colors duration-200 text-sm sm:text-base">
                     <PlusIcon className="h-5 w-5 mr-2"/>
                     Ajouter une Manche
@@ -265,10 +421,14 @@ const RoundsSetup: React.FC<RoundsSetupProps> = ({ rounds, setRounds, numTeams }
                             placeholder="Catégorie d'ingrédient (optionnel, ex: Alcools)"
                             className="text-base text-brand-light/80 bg-transparent border-0 border-b border-brand-gold/40 focus:ring-0 focus:border-brand-gold w-full mb-4"
                         />
-
-                        <div className="space-y-4 my-4">
-                            {round.questions?.map((_, questionIndex) => renderQuestionInput(roundIndex, questionIndex))}
+                        
+                        <div className="my-4">
+                            <h3 className="text-lg sm:text-xl font-medium text-brand-light/80">Questions</h3>
+                            <div className="space-y-4 mt-2">
+                                {round.questions?.map((_, questionIndex) => renderQuestionInput(roundIndex, questionIndex))}
+                            </div>
                         </div>
+
 
                         <button onClick={() => addQuestion(roundIndex)} className="flex items-center text-sm sm:text-base px-3 py-1 bg-brand-dark/50 border border-brand-gold/50 hover:bg-brand-gold/20 rounded-md text-white font-semibold transition-colors duration-200">
                             <PlusIcon className="h-4 w-4 mr-1"/>
@@ -277,8 +437,8 @@ const RoundsSetup: React.FC<RoundsSetupProps> = ({ rounds, setRounds, numTeams }
 
                         <div className="border-t border-brand-gold/30 my-6 mx-4"></div>
 
-                        <h4 className="text-lg sm:text-xl font-medium mb-2 text-brand-light/80">Ingrédients à gagner pour cette manche</h4>
-                        <p className="text-brand-light/60 mb-4 text-sm">Le classement déterminera l'ordre de sélection. Le nombre d'ingrédients doit correspondre au nombre d'équipes.</p>
+                        <h4 className="text-lg sm:text-xl font-medium mb-2 text-brand-light/80">Ingrédients à gagner</h4>
+                        <p className="text-brand-light/60 mb-4 text-sm">Le nombre d'ingrédients doit correspondre au nombre d'équipes.</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {(round.prizePool || []).map((prize, prizeIndex) => {
                                 return (
