@@ -9,16 +9,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react-dom": "^19.1.1",
+    "@google/genai": "0.14.0",
+    "immer": "10.1.1",
+    "jspdf": "^3.0.2",
+    "jspdf-autotable": "^5.0.2",
+    "jszip": "3.10.1",
+    "peerjs": "1.5.4",
+    "qrcode": "1.5.3",
     "react": "^19.1.1",
-    "@google/genai": "^1.19.0",
-    "jszip": "^3.10.1",
-    "wavesurfer.js": "^7.8.2",
-    "jspdf": "^2.5.1",
-    "jspdf-autotable": "^3.8.2",
-    "immer": "^10.1.1",
-    "peerjs": "^1.5.4",
-    "qrcode": "^1.5.3"
+    "react-dom": "^19.1.1",
+    "wavesurfer.js": "7.8.2"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

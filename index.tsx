@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
-import BuzzerApp from './components/BuzzerApp';
-import { LanguageProvider } from './contexts/LanguageContext';
-import { NotificationProvider } from './contexts/NotificationContext';
+import App from './App.tsx';
+import BuzzerApp from './components/BuzzerApp.tsx';
+import { LanguageProvider } from './contexts/LanguageContext.tsx';
+import { NotificationProvider } from './contexts/NotificationContext.tsx';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

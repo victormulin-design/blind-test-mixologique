@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import type { Team, Round, Question, Prize, GameSettings } from './types';
-import { TieBreakerRule, PrizeMode } from './types';
-import SetupScreen from './components/SetupScreen';
-import GameScreen from './components/GameScreen';
-import WelcomeScreen from './components/WelcomeScreen';
-import WaitingRoom from './components/game/WaitingRoom';
-import { CloseIcon, GearIcon } from './components/IconComponents';
-import ThemeSelector from './components/ThemeSelector';
-import LanguageSelector from './components/LanguageSelector';
-import Notification from './components/common/Notification';
+import type { Team, Round, Question, Prize, GameSettings } from './types.ts';
+import { TieBreakerRule, PrizeMode } from './types.ts';
+import SetupScreen from './components/SetupScreen.tsx';
+import GameScreen from './components/GameScreen.tsx';
+import WelcomeScreen from './components/WelcomeScreen.tsx';
+import WaitingRoom from './components/game/WaitingRoom.tsx';
+import { CloseIcon, GearIcon } from './components/IconComponents.tsx';
+import ThemeSelector from './components/ThemeSelector.tsx';
+import LanguageSelector from './components/LanguageSelector.tsx';
+import Notification from './components/common/Notification.tsx';
 import JSZip from 'jszip';
-import { useTranslations } from './hooks/useTranslations';
-import { useNotifications } from './contexts/NotificationContext';
-import { BuzzerProvider } from './contexts/BuzzerContext';
+import { useTranslations } from './hooks/useTranslations.ts';
+import { useNotifications } from './contexts/NotificationContext.tsx';
+import { BuzzerProvider } from './contexts/BuzzerContext.tsx';
 
 const processZipFile = async (file: File): Promise<any> => {
     const zip = await JSZip.loadAsync(file);

@@ -1,5 +1,5 @@
-import { useLanguage } from '../contexts/LanguageContext';
-import { translations } from '../translations';
+import { useLanguage } from '../contexts/LanguageContext.tsx';
+import { translations } from '../translations.ts';
 
 export const useTranslations = () => {
   const { language } = useLanguage();
