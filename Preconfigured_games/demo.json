@@ -1,38 +1,63 @@
+
 {
-    "numTeams": 4,
+    "numTeams": 2,
+    "prizeMode": "PER_ROUND",
+    "tieBreakerRule": "ALL_TIES",
     "teams": [
-        { "name": "The Quizzards of Oz" }, 
-        { "name": "Tequila Mockingbird" }, 
-        { "name": "Les Quizerables" },
-        { "name": "John Trivialta" }
+        { "name": "The Quizards" },
+        { "name": "Trivia Newton John" }
     ],
     "rounds": [
         {
-            "name": "Culture Générale",
+            "name": "General Knowledge",
+            "prizeCategory": "Bragging Rights",
             "prizePool": [
-                { "name": "Gin", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQUZEM0E4IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2EtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+CiAgPGNpcmNsZSBjeD0iMTMiIGN5PSIxNCIgcj0iNCIgLz4KPC9zdmc+" },
-                { "name": "Tonic Water", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkRDRTkxIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNiAzSDE4VjIxSDZWM1oiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNiA5aDEybS0xMiA2aDEyIiAvPgo8L3N2Zz4=" },
-                { "name": "Lime", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNkNCMjVDIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOSIgLz4KICA8cGF0aCBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGQ9Ik0xNSAzYy0yIDItNCA0LTYgNk05IDNjMiAyIDQgNCA2IDYiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBkPSJNMTIgM3YxOG05LTloLTE4IiAvPgo8L3N2Zz4=" },
-                { "name": "Ice", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQUREOEZGIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMyA3aDh2OGgtOFY3Wm0xMCAwaDh2OGgtOFY3Wm0tMTAgMTBoOHY4aC04di04Wm0xMCAwaDh2OGgtOHYtOFoiIC8+Cjwvc3ZnPg==" }
+                { "name": "First Pick" },
+                { "name": "Second Pick" }
             ],
             "questions": [
-                { "questionText": "Quelle est la capitale de l'Australie ?", "answer": "Canberra", "type": "LIVE", "points": 1, "timer": 20 },
-                { "questionText": "Qui a peint la Joconde ?", "answer": "Léonard de Vinci", "type": "LIVE", "points": 1 },
-                { "questionText": "Quel est le plus grand océan du monde ?", "clue": "Il borde la côte ouest des Amériques.", "answer": "L'océan Pacifique", "type": "LIVE", "points": 1 }
+                {
+                    "questionText": "What is the capital of France?",
+                    "answer": "Paris",
+                    "type": "QUIZ",
+                    "points": 1
+                },
+                {
+                    "questionText": "Which planet is known as the Red Planet?",
+                    "answer": "Mars",
+                    "type": "QUIZ",
+                    "points": 1,
+                    "clue": "It's the fourth planet from the Sun."
+                },
+                {
+                    "questionText": "Host performs a charade for the movie 'The Matrix'.",
+                    "answer": "The Matrix",
+                    "type": "LIVE",
+                    "points": 2
+                }
             ]
         },
         {
-            "name": "Cinéma",
-            "prizePool": [
-                { "name": "Vodka", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjVFRkU2IiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNOSAySDdWNWg0VjJNMTAgNWgxMEw4IDIySDZMMTAgNVoiIC8+Cjwvc3ZnPg==" },
-                { "name": "Ginger Beer", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQ0E5ODdCIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNiAzSDE4VjIxSDZWM1oiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMTYgOGwtMyA0IDYgNW0tOS04bDMgNi01IDMiIC8+Cjwvc3ZnPg==" },
-                { "name": "Lime Juice", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNkNCMjVDIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOSIgLz4KICA8cGF0aCBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGQ9Ik0xNSAzYy0yIDItNCA0LTYgNk05IDNjMiAyIDQgNCA2IDYiIC8+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBkPSJNMTIgM3YxOG05LTloLTE4IiAvPgo8L3N2Zz4=" },
-                { "name": "Mint Sprig", "imageUrl": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNkNCMjVDIiBzdHJva2Utd2lkdGg9IjEuNSI+CiAgPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNMTIgMjFWM200IDZjLTMgMC00IDMtNCAzcy0xLTMtNC0zbTEwIDVjLTMgMC00IDMtNCAzcy0xLTMtNC0zIiAvPgo8L3N2Zz4=" }
+            "name": "Pop Culture",
+            "prizeCategory": "Respect",
+             "prizePool": [
+                { "name": "Champion's Choice" },
+                { "name": "Runner-up's Reward" }
             ],
             "questions": [
-                { "questionText": "Dans 'Le Seigneur des Anneaux', qui dit : 'Vous ne passerez pas !' ?", "answer": "Gandalf", "type": "LIVE", "points": 1 },
-                { "questionText": "Quel film de Quentin Tarantino met en scène une mallette mystérieuse ?", "answer": "Pulp Fiction", "type": "LIVE", "timer": 25 },
-                { "questionText": "Quel est le nom du vaisseau spatial dans 'Alien' ?", "answer": "Le Nostromo", "type": "LIVE", "points": 2 }
+                {
+                    "questionText": "Who wrote the 'Harry Potter' series?",
+                    "answer": "J.K. Rowling",
+                    "type": "QUIZ",
+                    "points": 1
+                },
+                {
+                    "questionText": "What is the highest-grossing film of all time (unadjusted for inflation)?",
+                    "answer": "Avatar",
+                    "type": "QUIZ",
+                    "points": 2,
+                    "timer": 30
+                }
             ]
         }
     ]

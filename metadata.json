@@ -1,5 +1,5 @@
 {
-  "name": "Blind Test mixologique - 50 ans",
-  "description": "Une application pour créer et gérer un jeu de blind test pour plusieurs équipes. Configurez des manches avec des questions, des pistes audio ou Spotify, et attribuez des ingrédients en guise de prix selon le classement des équipes. Parfait pour une compétition amusante et dynamique.",
+  "name": "Quiz Night App",
+  "description": "A flexible application for creating and hosting quiz games for multiple teams. Configure rounds with questions, assign prizes, and keep score. Perfect for any fun and dynamic competition.",
   "requestFramePermissions": []
 }

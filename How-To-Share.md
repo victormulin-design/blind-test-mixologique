@@ -1,6 +1,57 @@
-# How to Share and Run Your Blind Test App
+# How to Create, Share, and Run Your Quiz Night App
 
-This guide will show you two simple ways to run your application outside of the development environment so you can share it with friends for beta testing.
+This guide will show you how to create your own game packages (especially with audio/images), share them, and run the app for friends.
+
+---
+
+## Creating Your Own Game Package (with Media)
+
+While you can create a game with just a `.json` file, the best way to include audio or images is by creating a `.zip` package. This keeps your files organized and avoids errors.
+
+**Step 1: Create Your Folder Structure**
+- Create a main folder for your game (e.g., `my-epic-quiz`).
+- Inside it, create your `config.json` file (you can export one from the app as a template).
+- Also inside, create an `audio` folder and an `images` folder.
+
+Your structure should look like this:
+```
+my-epic-quiz/
+├── config.json
+├── audio/
+│   └── song1.mp3
+│   └── sound_effect.wav
+└── images/
+    └── landmark.jpg
+    └── movie_poster.png
+```
+
+**Step 2: Edit Your `config.json`**
+- For any question or prize that needs media, **do not embed the file**. Instead, reference the filename.
+- The app will automatically look for the file in the `audio` or `images` folder inside the zip.
+
+**Example `config.json` entry for an audio question:**
+```json
+{
+  "questionText": "Name this symphony!",
+  "answer": "Beethoven's 5th",
+  "type": "AUDIO",
+  "audioFileName": "song1.mp3" 
+}
+```
+
+**Example `config.json` entry for an image question:**
+```json
+{
+  "questionText": "What is this landmark?",
+  "answer": "The Colosseum",
+  "type": "IMAGE",
+  "imageFileName": "landmark.jpg"
+}
+```
+
+**Step 3: Create the ZIP File**
+- Once your `config.json` and media files are all in place, compress the main folder (`my-epic-quiz`) into a single `.zip` file.
+- You can now load this `.zip` file directly into the app, and all your media will work perfectly!
 
 ---
 

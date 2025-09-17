@@ -3,25 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Soirée Blind Test</title>
+    <title>Quiz Night</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@400;700&family=Orbitron:wght@700&family=Playfair+Display:wght@700&family=Poppins:wght@700&family=Rajdhani:wght@400;700&family=Roboto+Slab:wght@700&family=Roboto+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
-              'brand-dark': '#1a1a1a',
-              'brand-light': '#F5EFE6',
-              'brand-gold': '#D4AF37',
-              'brand-burgundy': '#800020',
-              'brand-burgundy-dark': '#600018',
+              'brand-dark': 'rgb(var(--color-brand-dark) / <alpha-value>)',
+              'brand-light': 'rgb(var(--color-brand-light) / <alpha-value>)',
+              'brand-gold': 'rgb(var(--color-brand-gold) / <alpha-value>)',
+              'brand-burgundy': 'rgb(var(--color-brand-burgundy) / <alpha-value>)',
+              'brand-burgundy-dark': 'rgb(var(--color-brand-burgundy-dark) / <alpha-value>)',
+              'brand-red-alert': 'rgb(var(--color-brand-red-alert) / <alpha-value>)',
             },
             fontFamily: {
-              'display': ['Poppins', 'sans-serif'],
-              'body': ['Lato', 'sans-serif'],
+              'display': ['var(--font-display)', 'sans-serif'],
+              'body': ['var(--font-body)', 'sans-serif'],
             },
             animation: {
               'fade-in': 'fadeIn 0.5s ease-in-out',
@@ -41,8 +42,8 @@
                 '100%': { transform: 'translateY(0)', opacity: 1 },
               },
               glow: {
-                '0%, 100%': { boxShadow: '0 0 8px #D4AF37, 0 0 12px #D4AF37' },
-                '50%': { boxShadow: '0 0 20px #D4AF37, 0 0 30px #D4AF37' },
+                '0%, 100%': { boxShadow: '0 0 8px rgb(var(--color-brand-gold)), 0 0 12px rgb(var(--color-brand-gold))' },
+                '50%': { boxShadow: '0 0 20px rgb(var(--color-brand-gold)), 0 0 30px rgb(var(--color-brand-gold))' },
               },
               bubbles: {
                 '0%': { transform: 'translateY(0) scale(1)', opacity: 1 },
@@ -68,9 +69,66 @@
       }
     </script>
     <style>
+      :root, :root[data-theme="speakeasy-gold"] {
+        --color-brand-dark: 26 26 26;
+        --color-brand-light: 245 239 230;
+        --color-brand-gold: 212 175 55;
+        --color-brand-burgundy: 128 0 32;
+        --color-brand-burgundy-dark: 96 0 24;
+        --color-brand-red-alert: 220 38 38; /* A vibrant, standard red */
+        --font-display: 'Poppins';
+        --font-body: 'Lato';
+        --background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.05'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
+      :root[data-theme="ocean-depths"] {
+        --color-brand-dark: 3 29 68;
+        --color-brand-light: 255 255 255;
+        --color-brand-gold: 255 214 10;
+        --color-brand-burgundy: 4 102 200;
+        --color-brand-burgundy-dark: 3 83 164;
+        --font-display: 'Roboto Slab';
+        --font-body: 'Roboto';
+        --background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='%230466c8' fill-opacity='0.1'%3E%3Cpath d='M0 20a20 20 0 1040 0 20 20 0 00-40 0zM10 20a10 10 0 1120 0 10 10 0 01-20 0z'/%3E%3C/g%3E%3C/svg%3E");
+      }
+      :root[data-theme="cosmic-reef"] {
+        --color-brand-dark: 9 40 51;
+        --color-brand-light: 253 251 240;
+        --color-brand-gold: 217 203 72;
+        --color-brand-burgundy: 39 138 167;
+        --color-brand-burgundy-dark: 30 108 133;
+        --font-display: 'Poppins';
+        --font-body: 'Lato';
+        --background-image: radial-gradient(ellipse at center, rgba(39, 138, 167, 0.3) 0%, transparent 70%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23d9cb48' fill-opacity='0.05'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
+      :root[data-theme="cyber-neon"] {
+        --color-brand-dark: 16 16 24;
+        --color-brand-light: 240 240 255;
+        --color-brand-gold: 255 0 255;
+        --color-brand-burgundy: 41 214 197; /* Teal */
+        --color-brand-burgundy-dark: 33 171 158;
+        --font-display: 'Orbitron';
+        --font-body: 'Roboto Mono';
+        --background-image: radial-gradient(ellipse at bottom, rgba(41, 214, 197, 0.2) 0%, transparent 60%), repeating-diagonal-lines(45deg, rgba(255, 0, 255, 0.05), rgba(255, 0, 255, 0.05) 1px, transparent 1px, transparent 20px);
+      }
       body {
-        background-color: #1a1a1a;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.05'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        background-color: rgb(var(--color-brand-dark));
+        background-image: var(--background-image);
+      }
+      /* Custom scrollbar for webkit browsers */
+      .custom-scrollbar::-webkit-scrollbar {
+          height: 8px;
+          width: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(var(--color-brand-dark), 0.5);
+          border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgb(var(--color-brand-gold));
+          border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgb(var(--color-brand-light));
       }
     </style>
   <script type="importmap">
@@ -79,10 +137,19 @@
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
     "react/": "https://aistudiocdn.com/react@^19.1.1/",
     "react": "https://aistudiocdn.com/react@^19.1.1",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.19.0"
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.19.0",
+    "jszip": "https://aistudiocdn.com/jszip@^3.10.1",
+    "wavesurfer.js": "https://aistudiocdn.com/wavesurfer.js@^7.8.2",
+    "wavesurfer.js/": "https://aistudiocdn.com/wavesurfer.js@^7.8.2/",
+    "jspdf": "https://aistudiocdn.com/jspdf@^2.5.1",
+    "jspdf-autotable": "https://aistudiocdn.com/jspdf-autotable@^3.8.2",
+    "immer": "https://aistudiocdn.com/immer@^10.1.1",
+    "peerjs": "https://aistudiocdn.com/peerjs@^1.5.4",
+    "qrcode": "https://aistudiocdn.com/qrcode@^1.5.3"
   }
 }
 </script>
+<link rel="stylesheet" href="/index.css">
 </head>
   <body class="bg-brand-dark text-brand-light font-body">
     <div id="root"></div>

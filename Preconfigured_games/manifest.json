@@ -1,15 +1,7 @@
 
 [
   {
-    "name": "Soirée '50 ans' (Complet)",
-    "file": "Blind-test-50ans-full.json"
-  },
-  {
-    "name": "Soirée '50 ans' (Original)",
-    "file": "50-ans-original.json"
-  },
-  {
-    "name": "Jeu de Démo",
+    "name": "Simple Starter Game",
     "file": "demo.json"
   }
 ]
